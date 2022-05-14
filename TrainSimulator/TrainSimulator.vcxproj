@@ -72,6 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\dependencies\glew-2.1.0\include;..\dependencies\glfw-3.3.6.bin.WIN32\include\GLFW;..\dependencies\glm\glm;..\dependencies\stb-master;..\dependencies\freeglut\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\dependencies\glew-2.1.0\lib\Release\Win32;..\dependencies\glfw-3.3.6.bin.WIN32\lib-vc2019;..\dependencies\freeglut\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -140,10 +142,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="TrainSimulator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="IndexBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
