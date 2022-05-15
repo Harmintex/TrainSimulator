@@ -148,6 +148,7 @@
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="VertexArray.h" />
@@ -168,6 +170,9 @@
   <ItemGroup>
     <None Include="Resources\Shaders\ShadowMapping.shader" />
     <None Include="Resources\Shaders\ShadowMappingDepth.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SkyBox.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
