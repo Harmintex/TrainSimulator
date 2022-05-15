@@ -16,10 +16,17 @@
 #include "VertexBufferLayout.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "SkyBox.h"
 
+//Variables
 Camera* camera = nullptr;
 double deltaTime = 0.0f;
 double lastFrame = 0.0f;
+const unsigned int SCR_WIDTH = 640;
+const unsigned int SCR_HEIGHT = 480;
+
+//Functions
+void processInput(GLFWwindow* window);
 
 int main(void)
 {
@@ -30,7 +37,7 @@ int main(void)
     }
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -89,15 +96,25 @@ int main(void)
         shader.Unbind();
 
         Renderer renderer;
-
+        SkyBox skyBox;
+        camera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 1.0, 3.0));
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
+            float currentFrame = (float)glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
+            processInput(window);
+
+            glm::mat4 projection = camera->GetProjectionMatrix();
+            glm::mat4 view = camera->GetViewMatrix();
+
+            skyBox.Draw(projection, view);
             /* Render here */
             renderer.Clear();
 
             shader.Bind();
-            shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
 
             renderer.Draw(vertexArray, indexBuffer, shader);
 
@@ -134,22 +151,22 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
         int width, height;
         glfwGetWindowSize(window, &width, &height);
-        pCamera->Reset(width, height);
+        camera->Reset(width, height);
 
     }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    pCamera->Reshape(width, height);
+    camera->Reshape(width, height);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    pCamera->MouseControl((float)xpos, (float)ypos);
+    camera->MouseControl((float)xpos, (float)ypos);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yOffset)
 {
-    pCamera->ProcessMouseScroll((float)yOffset);
+    camera->ProcessMouseScroll((float)yOffset);
 }
