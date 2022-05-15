@@ -27,6 +27,9 @@ const unsigned int SCR_HEIGHT = 480;
 
 //Functions
 void processInput(GLFWwindow* window);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yOffset);
 
 int main(void)
 {
@@ -46,6 +49,11 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
     glfwSwapInterval(1);
 
@@ -97,7 +105,8 @@ int main(void)
 
         Renderer renderer;
         SkyBox skyBox;
-        camera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 1.0, 3.0));
+        camera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 0.0));
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
@@ -110,13 +119,14 @@ int main(void)
             glm::mat4 projection = camera->GetProjectionMatrix();
             glm::mat4 view = camera->GetViewMatrix();
 
-            skyBox.Draw(projection, view);
             /* Render here */
             renderer.Clear();
 
+            skyBox.Draw(projection, view);
+            
             shader.Bind();
 
-            renderer.Draw(vertexArray, indexBuffer, shader);
+            //renderer.Draw(vertexArray, indexBuffer, shader);
 
             /* Swap front and back buffers */
             GlCall(glfwSwapBuffers(window));
@@ -152,7 +162,6 @@ void processInput(GLFWwindow* window)
         int width, height;
         glfwGetWindowSize(window, &width, &height);
         camera->Reset(width, height);
-
     }
 }
 

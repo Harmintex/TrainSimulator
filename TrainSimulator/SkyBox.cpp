@@ -1,54 +1,21 @@
 #include "SkyBox.h"
+#include "VertexBufferLayout.h"
 #include <GL/glew.h>
 #include <stb_image.h>
 #include <iostream>
 
-SkyBox::SkyBox() : skyBoxShader{ "res\\shaders\\SkyBox.shader" }
+SkyBox::SkyBox() : skyBoxShader{ "Resources\\Shaders\\SkyBox.shader" }
 {
-	GLfloat skyboxVertices[108] =
+	float skyboxVertices[] =
 	{
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		-1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f
+		-1.0f, -1.0f,  1.0f,//        7--------6
+		 1.0f, -1.0f,  1.0f,//       /|       /|
+		 1.0f, -1.0f, -1.0f,//      4--------5 |
+		-1.0f, -1.0f, -1.0f,//      | |      | |
+		-1.0f,  1.0f,  1.0f,//      | 3------|-2
+		 1.0f,  1.0f,  1.0f,//      |/       |/
+		 1.0f,  1.0f, -1.0f,//      0--------1
+		-1.0f,  1.0f, -1.0f
 	};
 
 	unsigned int skyboxIndices[] =
@@ -75,12 +42,12 @@ SkyBox::SkyBox() : skyBoxShader{ "res\\shaders\\SkyBox.shader" }
 
 	facePaths =
 	{
-		"res\\textures\\bluecloud_rt.jpg",
-		"res\\textures\\bluecloud_lf.jpg",
-		"res\\textures\\bluecloud_up.jpg",
-		"res\\textures\\bluecloud_dn.jpg",
-		"res\\textures\\bluecloud_ft.jpg",
-		"res\\textures\\bluecloud_bk.jpg"
+		"Resources\\Textures\\bluecloud_rt.jpg",
+		"Resources\\Textures\\bluecloud_lf.jpg",
+		"Resources\\Textures\\bluecloud_up.jpg",
+		"Resources\\Textures\\bluecloud_dn.jpg",
+		"Resources\\Textures\\bluecloud_ft.jpg",
+		"Resources\\Textures\\bluecloud_bk.jpg"
 	};
 
 	glGenVertexArrays(1, &VAO);
@@ -105,42 +72,22 @@ SkyBox::SkyBox() : skyBoxShader{ "res\\shaders\\SkyBox.shader" }
 
 SkyBox::~SkyBox()
 {
+	skyBoxShader.Unbind();
 }
 
 unsigned int SkyBox::CreateCubemapTexture()
 {
-	unsigned int cubemapTexture;
-	glGenTextures(1, &cubemapTexture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// These are very important to prevent seams
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	// This might help with seams on some systems
-	//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-	// Cycles through all the textures and attaches them to the cubemap object
-	for (unsigned int i = 0; i < 6; i++)
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < facePaths.size(); i++)
 	{
-		int width, height, nrChannels;
 		unsigned char* data = stbi_load(facePaths[i].c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
-			stbi_set_flip_vertically_on_load(false);
-			glTexImage2D
-			(
-				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-				0,
-				GL_RGB,
-				width,
-				height,
-				0,
-				GL_RGB,
-				GL_UNSIGNED_BYTE,
-				data
-			);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
 		}
 		else
@@ -149,12 +96,19 @@ unsigned int SkyBox::CreateCubemapTexture()
 			stbi_image_free(data);
 		}
 	}
-	return cubemapTexture;
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
 }
 
 void SkyBox::Draw(const glm::mat4& view, const glm::mat4& projection)
 {
 	glDepthFunc(GL_LEQUAL);
+
 	skyBoxShader.Bind();
 	skyBoxShader.SetUniformMat4f("view", glm::mat4(glm::mat3(view)));
 	skyBoxShader.SetUniformMat4f("projection", projection);
@@ -165,5 +119,6 @@ void SkyBox::Draw(const glm::mat4& view, const glm::mat4& projection)
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
+
 	glDepthFunc(GL_LESS);
 }
