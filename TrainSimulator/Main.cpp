@@ -22,8 +22,8 @@
 Camera* camera = nullptr;
 double deltaTime = 0.0f;
 double lastFrame = 0.0f;
-const unsigned int SCR_WIDTH = 640;
-const unsigned int SCR_HEIGHT = 480;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 //Functions
 void processInput(GLFWwindow* window);
@@ -52,8 +52,6 @@ int main(void)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
-
-    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
     glfwSwapInterval(1);
 
@@ -107,9 +105,19 @@ int main(void)
         SkyBox skyBox;
         camera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 0.0));
 
+        glEnable(GL_DEPTH_TEST);
+        glDepthRange(1, 1);
+        // Enables Cull Facing
+        glEnable(GL_CULL_FACE);
+        // Keeps front faces
+        glCullFace(GL_FRONT);
+        // Uses counter clock-wise standard
+        glFrontFace(GL_CCW);
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
+
             float currentFrame = (float)glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
@@ -119,10 +127,13 @@ int main(void)
             glm::mat4 projection = camera->GetProjectionMatrix();
             glm::mat4 view = camera->GetViewMatrix();
 
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
             /* Render here */
             renderer.Clear();
 
-            skyBox.Draw(projection, view);
+            //skyBox.Draw(projection, view);
+            skyBox.Draw(view, projection);
             
             shader.Bind();
 

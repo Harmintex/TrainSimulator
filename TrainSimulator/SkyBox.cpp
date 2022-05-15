@@ -6,7 +6,7 @@
 
 SkyBox::SkyBox() : skyBoxShader{ "Resources\\Shaders\\SkyBox.shader" }
 {
-	float skyboxVertices[] =
+	float vertices[] =
 	{
 		-1.0f, -1.0f,  1.0f,//        7--------6
 		 1.0f, -1.0f,  1.0f,//       /|       /|
@@ -18,9 +18,9 @@ SkyBox::SkyBox() : skyBoxShader{ "Resources\\Shaders\\SkyBox.shader" }
 		-1.0f,  1.0f, -1.0f
 	};
 
-	unsigned int skyboxIndices[] =
+	unsigned int indices[] =
 	{
-		// Right
+		//Right
 		1, 2, 6,
 		6, 5, 1,
 		// Left
@@ -42,8 +42,8 @@ SkyBox::SkyBox() : skyBoxShader{ "Resources\\Shaders\\SkyBox.shader" }
 
 	facePaths =
 	{
-		"Resources\\Textures\\bluecloud_rt.jpg",
 		"Resources\\Textures\\bluecloud_lf.jpg",
+		"Resources\\Textures\\bluecloud_rt.jpg",
 		"Resources\\Textures\\bluecloud_up.jpg",
 		"Resources\\Textures\\bluecloud_dn.jpg",
 		"Resources\\Textures\\bluecloud_ft.jpg",
@@ -55,9 +55,9 @@ SkyBox::SkyBox() : skyBoxShader{ "Resources\\Shaders\\SkyBox.shader" }
 	glGenBuffers(1, &EBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(skyboxIndices), &skyboxIndices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -109,15 +109,21 @@ void SkyBox::Draw(const glm::mat4& view, const glm::mat4& projection)
 {
 	glDepthFunc(GL_LEQUAL);
 
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	skyBoxShader.Bind();
 	skyBoxShader.SetUniformMat4f("view", glm::mat4(glm::mat3(view)));
 	skyBoxShader.SetUniformMat4f("projection", projection);
 
 	// skybox cube
 	glBindVertexArray(VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 
 	glDepthFunc(GL_LESS);
