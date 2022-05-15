@@ -82,7 +82,7 @@ int main(void)
 
         IndexBuffer indexBuffer(indices, 6);
 
-        Shader shader("Resources/Basic.shader");
+        Shader shader("Resources/Shaders/Basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
 

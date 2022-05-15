@@ -81,4 +81,8 @@
   <ItemGroup>
     <None Include="Resources\SkyBox.shader" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\ShadowMapping.shader" />
+    <None Include="Resources\Shaders\ShadowMappingDepth.shader" />
+  </ItemGroup>
 </Project>

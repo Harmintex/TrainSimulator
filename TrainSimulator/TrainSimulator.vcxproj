@@ -168,6 +168,10 @@
     <ClInclude Include="VertexBufferLayout.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Shaders\ShadowMapping.shader" />
+    <None Include="Resources\Shaders\ShadowMappingDepth.shader" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Resources\SkyBox.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
