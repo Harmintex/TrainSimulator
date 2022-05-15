@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
+    <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -157,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="IndexBuffer.h" />
+    <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Texture.h" />
