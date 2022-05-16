@@ -23,8 +23,8 @@
 #include "SkyBox.h"
 
 // Global avriables
-const float SCR_HEIGHT = 1900;
-const float SCR_WIDTH = 2000;
+const int SCR_HEIGHT = 1080;
+const int SCR_WIDTH = 1920;
 float lastFrame = 0.0f, deltaTime;
 Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(5.0f, 8.0f, 30.0f));
 
