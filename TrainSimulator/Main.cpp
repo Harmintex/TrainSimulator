@@ -1,8 +1,10 @@
 #include <iostream>
-#include <GL/glew.h>
-#include <glfw3.h>
 #include <fstream>
 #include <sstream>
+#include<GL/glew.h>
+#include<glfw3.h>
+#include<GL/glut.h>
+#include<glm.hpp>
 
 #pragma comment (lib, "glfw3dll.lib")
 #pragma comment (lib, "glew32.lib")
@@ -16,111 +18,94 @@
 #include "VertexBufferLayout.h"
 #include "Texture.h"
 #include "Camera.h"
-#include "SkyBox.h"
 #include "ObjectLoader.h"
 #include "Model.h"
 #include "Terrain.h"
+#include "SkyBox.h"
 
-//Variables
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
-Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(9.0f, 10.0f, 33.0f));
-double deltaTime = 0.0f;
-double lastFrame = 0.0f;
+// Global avriables
+const int SCR_HEIGHT = 1080;
+const int SCR_WIDTH = 1920;
+float lastFrame = 0.0f, deltaTime;
+Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(5.0f, 8.0f, 30.0f));
 
-
-//Functions
+// Functions used for proccesing input from user
 void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yOffset);
 
-void RenderTrain(Shader& shadowMappingShader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window, glm::vec3& lightPos)
+void RenderTrain(Shader& object_shader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window, glm::vec3& lightPos)
 {
 	glm::mat4 model = glm::mat4(0.7f);
-
-	//train movement values
-	double fIncrement = 0.001;
-	static double fMovementValue = 0.0;
-	float current_x = glm::sin(fMovementValue) * 460.0f;
-	lightPos.x = current_x;
 
 	model = glm::translate(model, glm::vec3(0.0f, -0.09f, 5.1f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
 
-	shadowMappingShader.Bind();
-	shadowMappingShader.SetUniformMat4f("model", model);
+	object_shader.Bind();
+	object_shader.SetUniformMat4f("model", model);
 
-	train.Draw(camera, shadowMappingShader, renderer);
+	train.Draw(camera, object_shader, renderer);
 }
 
 int main(void)
 {
-	GLFWwindow* window;
-
-	if (!glfwInit()) {
+	if (!glfwInit())
 		return -1;
-	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Train Simulator", NULL, NULL);
+
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Train simulator", NULL, NULL);
 	if (!window)
 	{
+		std::cout << "Failed to create window!\n";
 		glfwTerminate();
 		return -1;
 	}
 
-	/* Make the window's context current */
+
 	glfwMakeContextCurrent(window);
+
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
-	//glfwSwapInterval(1);
-	glfwSwapInterval(1);
-
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Error!" << std::endl;
-	}
-
-	std::cout << glGetString(GL_VERSION) << std::endl;
-
+	glewInit();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Shader shadowMappingShader("Resources/Shaders/ShadowMapping.shader");
 
-	Shader shadowMappingDepthShader("Resources/Shaders/ShadowMappingDepth.shader");
+	Shader shadowMap_shader("Resources/Shaders/ShadowMapping.shader"); //shaders used for shadows
+	Shader shadowMapDepth_shader("Resources/Shaders/ShadowMappingDepth.shader");
 
-	Texture trainTexture("/Resources/Textures/trainTexture.png");
-	trainTexture.Bind(0);
+	Texture train_texture("Resources/Textures/train_texture.png");
+
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
 
 	Renderer renderer;
+
+	glEnable(GL_DEPTH_TEST);
+
+	SkyBox skybox_scene;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	std::vector<float> trainVertices;
 	std::vector<unsigned int> trainIndices;
 	ObjectLoader::LoadObject("Resources/Models/train.obj", trainVertices, trainIndices);
 
-	Model train(trainVertices, trainIndices, trainTexture);
+	Model train(trainVertices, trainIndices, train_texture);
 
-	/*vertexArray.Unbind();
-	vertexBuffer.Unbind();
-	indexBuffer.Unbind();
-	shader.Unbind();*/
-
-	SkyBox skyBox;
-	Terrain terrain;
-
-	float last_frame = 0.0f, delta_time;
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
+	float ambientIntensity = 0.8f;
 
 	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 	unsigned int depthMapFBO;
@@ -144,11 +129,11 @@ int main(void)
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	shadowMappingShader.Bind();
-	shadowMappingShader.SetUniform1i("diffuseTexture", 0);
-	shadowMappingShader.SetUniform1i("shadowMap", 1);
+	shadowMap_shader.Bind();
+	shadowMap_shader.SetUniform1i("diffuseTexture", 0);
+	shadowMap_shader.SetUniform1i("shadowMap", 1);
 
-	glm::vec3 lightPos(-10.f, 25.f, 10.0f);
+	glm::vec3 lightPos(-8.0f, 30.f, 15.0f);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -156,24 +141,25 @@ int main(void)
 	glFrontFace(GL_CCW);
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
-	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		renderer.Clear();
 
+		float current_frame = static_cast<float>(glfwGetTime());
+		deltaTime = current_frame - lastFrame;
+		lastFrame = current_frame;
 
-		float currentFrame = (float)glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+
+		shadowMap_shader.Bind();
+		shadowMap_shader.SetUniform1f("u_AmbientIntensity", ambientIntensity);
 
 		processInput(window);
 
-		/* Render here */
 		glDepthFunc(GL_LEQUAL);
+
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//Render depth of scene to texture (from light's perspective)
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
 		float near_plane = -100.0f, far_plane = 200.5f;
@@ -181,10 +167,11 @@ int main(void)
 		lightView = glm::lookAt(lightPos + 20.f, lightPos - 20.f, glm::vec3(0.0, 1.0, 0.0));
 		lightSpaceMatrix = lightProjection * lightView;
 
-		shadowMappingDepthShader.Bind();
-		shadowMappingDepthShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
-		
-		skyBox.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
+		shadowMapDepth_shader.Bind();
+		shadowMapDepth_shader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+
+		skybox_scene.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -193,18 +180,22 @@ int main(void)
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 
+		RenderTrain(shadowMapDepth_shader, camera, renderer, train, window, lightPos);
 
-		//RenderTrain(shadowMappingDepthShader, camera, renderer, train, window, lightPos);
 
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		shadowMappingShader.Bind();
-		shadowMappingShader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-		shadowMappingShader.SetUniformMat4f("view", camera.GetViewMatrix());
-		shadowMappingShader.SetUniform3f("viewPos", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-		shadowMappingShader.SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
-		shadowMappingShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+		//glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		shadowMap_shader.Bind();
+		shadowMap_shader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+		shadowMap_shader.SetUniformMat4f("view", camera.GetViewMatrix());
+
+		shadowMap_shader.SetUniform3f("viewPos", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+		shadowMap_shader.SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
+		shadowMap_shader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
 		/* Render here */
 		terrain.Draw();
@@ -212,16 +203,13 @@ int main(void)
 		trainTexture.Bind();
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
-
-		RenderTrain(shadowMappingShader, camera, renderer, train, window, lightPos);
-
 		glDisable(GL_CULL_FACE);
-		glDepthFunc(GL_LESS);
+
+		RenderTrain(shadowMap_shader, camera, renderer, train, window, lightPos);
 
 		/* Swap front and back buffers */
-		GlCall(glfwSwapBuffers(window));
+		glfwSwapBuffers(window);
 
-		/* Poll for and process events */
 		glfwPollEvents();
 	}
 
@@ -234,17 +222,22 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		camera.ProcessKeyboard(BACKWARD, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		camera.ProcessKeyboard(LEFT, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		camera.ProcessKeyboard(UP, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		camera.ProcessKeyboard(DOWN, (float)deltaTime);
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
