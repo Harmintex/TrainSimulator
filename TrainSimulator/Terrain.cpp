@@ -6,14 +6,14 @@ Terrain::Terrain()
 {
 	float vertices[] =
 	{
-		-1.0f, -1.0f,  1.0f,//        7--------6
-		 1.0f, -1.0f,  1.0f,//       /|       /|
-		 1.0f, -1.0f, -1.0f,//      4--------5 |
-		-1.0f, -1.0f, -1.0f,//      | |      | |
-		-1.0f,  1.0f,  1.0f,//      | 3------|-2
-		 1.0f,  1.0f,  1.0f,//      |/       |/
-		 1.0f,  1.0f, -1.0f,//      0--------1
-		-1.0f,  1.0f, -1.0f
+		-20.0f, -0.0f,  1000.0f,//        7--------6
+		 20.0f, -0.0f,  1000.0f,//       /|       /|
+		 20.0f, -0.0f, -1000.0f,//      4--------5 |
+		-20.0f, -0.0f, -1000.0f,//      | |      | |
+		-20.0f,  0.0f,  1000.0f,//      | 3------|-2
+		 20.0f,  0.0f,  1000.0f,//      |/       |/
+		 20.0f,  0.0f, -1000.0f,//      0--------1
+		-20.0f,  0.0f, -1000.0f
 	};
 
 	unsigned int indices[] =
@@ -52,25 +52,21 @@ Terrain::Terrain()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	groundTexture = new Texture("\Resources\Textures\ground.jpg");
-	groundTexture->Bind();
-	groundTexture->Unbind();
 }
 
 Terrain::~Terrain()
 {
 }
 
-void Terrain::Draw()
+void Terrain::Draw(Texture groundTexture)
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glEnable(GL_TEXTURE_2D);
+	glClearColor(0, 0, 0, 1);
 	glClearDepth(1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	groundTexture->Bind();
+	groundTexture.Bind();
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

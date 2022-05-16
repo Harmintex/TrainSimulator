@@ -6,11 +6,11 @@ class Terrain
 private:
 	unsigned int length, width, height;
 	unsigned int VBO, EBO, VAO;
-	Texture* groundTexture;
+	Texture groundTexture;
 
 public:
 	Terrain();
 	~Terrain();
 
-	void Draw();
+	void Draw(Texture groundTexture);
 };

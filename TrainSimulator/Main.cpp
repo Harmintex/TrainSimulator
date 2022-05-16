@@ -35,7 +35,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yOffset);
 
-void RenderTrain(Shader& object_shader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window, glm::vec3& lightPos)
+void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window, glm::vec3& lightPos)
 {
 	glm::mat4 model = glm::mat4(0.7f);
 
@@ -43,10 +43,60 @@ void RenderTrain(Shader& object_shader, Camera& camera, Renderer& renderer, Mode
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
 
-	object_shader.Bind();
-	object_shader.SetUniformMat4f("model", model);
+	objectShader.Bind();
+	objectShader.SetUniformMat4f("model", model);
 
-	train.Draw(camera, object_shader, renderer);
+	train.Draw(camera, objectShader, renderer);
+}
+
+void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, GLFWwindow* window, glm::vec3& lightPos)
+{
+	std::vector<float> vertices =
+	{
+		-20.0f, -0.0f,  1000.0f,//        7--------6
+		 20.0f, -0.0f,  1000.0f,//       /|       /|
+		 20.0f, -0.0f, -1000.0f,//      4--------5 |
+		-20.0f, -0.0f, -1000.0f,//      | |      | |
+		-20.0f,  0.0f,  1000.0f,//      | 3------|-2
+		 20.0f,  0.0f,  1000.0f,//      |/       |/
+		 20.0f,  0.0f, -1000.0f,//      0--------1
+		-20.0f,  0.0f, -1000.0f
+	};
+
+	std::vector<unsigned int> indices =
+	{
+		//Right
+		1, 2, 6,
+		6, 5, 1,
+		// Left
+		0, 4, 7,
+		7, 3, 0,
+		// Top
+		4, 5, 6,
+		6, 7, 4,
+		// Bottom
+		0, 3, 2,
+		2, 1, 0,
+		// Back
+		0, 1, 5,
+		5, 4, 0,
+		// Front
+		3, 7, 6,
+		6, 2, 3
+	};
+	Texture groundTexture("Resources/Textures/ground.jpg");
+	Model terrain(vertices, indices, groundTexture);
+
+	glm::mat4 model = glm::mat4(0.7f);
+
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 0.0f, 0.0f));
+
+	objectShader.Bind();
+	objectShader.SetUniformMat4f("model", model);
+
+	terrain.Draw(camera, objectShader, renderer);
 }
 
 int main(void)
@@ -85,6 +135,7 @@ int main(void)
 	Shader shadowMapDepth_shader("Resources/Shaders/ShadowMappingDepth.shader");
 
 	Texture train_texture("Resources/Textures/train_texture.png");
+	Texture groundTexture("Resources/Textures/ground.jpg");
 
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -95,6 +146,7 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 
 	SkyBox skybox_scene;
+	Terrain terrain;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -198,14 +250,14 @@ int main(void)
 		shadowMap_shader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
 		/* Render here */
-		terrain.Draw();
 
-		trainTexture.Bind();
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 
 		RenderTrain(shadowMap_shader, camera, renderer, train, window, lightPos);
+		//RenderTerrain(shadowMap_shader, camera, renderer, window, lightPos);
+		//terrain.Draw(groundTexture); //TODO: reduce frame issues
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
