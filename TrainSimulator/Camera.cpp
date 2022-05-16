@@ -136,7 +136,6 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, bool constrainPi
 	//std::cout << "yaw = " << yaw << std::endl;
 	//std::cout << "pitch = " << pitch << std::endl;
 
-	// Avem grijã sã nu ne dãm peste cap
 	if (constrainPitch) {
 		if (pitch > 89.0f)
 			pitch = 89.0f;
@@ -144,7 +143,6 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, bool constrainPi
 			pitch = -89.0f;
 	}
 
-	// Se modificã vectorii camerei pe baza unghiurilor Euler
 	UpdateCameraVectors();
 }
 

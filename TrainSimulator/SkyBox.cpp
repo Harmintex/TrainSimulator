@@ -107,7 +107,7 @@ unsigned int SkyBox::CreateCubemapTexture()
 
 void SkyBox::Draw(const glm::mat4& view, const glm::mat4& projection)
 {
-	glDepthFunc(GL_LEQUAL);
+	
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
@@ -126,5 +126,5 @@ void SkyBox::Draw(const glm::mat4& view, const glm::mat4& projection)
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 
-	glDepthFunc(GL_LESS);
+	
 }

@@ -97,7 +97,7 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 	return program;
 }
 
-void Shader::Bind() const
+void Shader::Bind()const
 {
 	GlCall(glUseProgram(rendererID));
 }
@@ -115,6 +115,11 @@ void Shader::SetUniform1i(const std::string& name, int value)
 void Shader::SetUniform1f(const std::string& name, float value)
 {
 	GlCall(glUniform1f(GetUniformLocation(name), value));
+}
+
+void Shader::SetUniform3f(const std::string& name, float v0, float v1, float v2)
+{
+	GlCall(glUniform3f(GetUniformLocation(name), v0, v1, v2));
 }
 
 void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)

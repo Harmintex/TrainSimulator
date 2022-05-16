@@ -1,7 +1,7 @@
 #include "ObjectLoader.h"
 #pragma once
 
-void ObjectLoader::LoadObject(std::string& filePath, std::vector<float>& vertices, std::vector<unsigned int>& indices)
+void ObjectLoader::LoadObject(std::string filePath, std::vector<float>& vertices, std::vector<unsigned int>& indices)
 {
 	std::vector<glm::vec3> tempVertices;
 	std::vector<glm::vec2> tempUvs;
@@ -36,7 +36,7 @@ void ObjectLoader::LoadObject(std::string& filePath, std::vector<float>& vertice
 			continue;
 		}
 
-		if (line == "vt")
+		if (line == "vn")
 		{
 			glm::vec3 normal;
 			inputFile >> normal.x >> normal.y >> normal.z;

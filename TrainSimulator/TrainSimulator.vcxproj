@@ -170,8 +170,12 @@
     <ClInclude Include="VertexBufferLayout.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Shaders\ShadowMapping.shader" />
-    <None Include="Resources\Shaders\ShadowMappingDepth.shader" />
+    <None Include="Resources\Shaders\ShadowMapping.shader">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Resources\Shaders\ShadowMappingDepth.shader">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SkyBox.shader" />
