@@ -19,6 +19,7 @@
 #include "SkyBox.h"
 #include "ObjectLoader.h"
 #include "Model.h"
+#include "Terrain.h"
 
 //Variables
 const unsigned int SCR_WIDTH = 1920;
@@ -91,32 +92,6 @@ int main(void)
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
-	/*float positions[] = {
-		-0.5f, -0.5f, 0.0f, 0.0f,
-		 0.5f, -0.5f, 1.0f, 0.0f,
-		 0.5f,  0.5f, 1.0f, 1.0f,
-		-0.5f,  0.5f, 0.0f, 1.0f
-	};
-
-	unsigned int indices[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	unsigned int vao;
-	GlCall(glGenVertexArrays(1, &vao));
-	GlCall(glBindVertexArray(vao));
-
-	VertexArray vertexArray;
-	VertexBuffer vertexBuffer(positions, 4 * 4 * sizeof(float));
-
-	VertexBufferLayout layout;
-	layout.Push<float>(2);
-	layout.Push<float>(2);
-	vertexArray.AddBuffer(vertexBuffer, layout);
-
-	IndexBuffer indexBuffer(indices, 6);*/
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -125,6 +100,7 @@ int main(void)
 	Shader shadowMappingDepthShader("Resources/Shaders/ShadowMappingDepth.shader");
 
 	Texture trainTexture("/Resources/Textures/trainTexture.png");
+	trainTexture.Bind(0);
 
 	Renderer renderer;
 
@@ -134,16 +110,14 @@ int main(void)
 
 	Model train(trainVertices, trainIndices, trainTexture);
 
-	/*Texture texture("Train_MainTex.psd");
-	texture.Bind();
-	shader.SetUniform1i("u_Texture", 0);*/
-
 	/*vertexArray.Unbind();
 	vertexBuffer.Unbind();
 	indexBuffer.Unbind();
 	shader.Unbind();*/
 
 	SkyBox skyBox;
+	Terrain terrain;
+
 	float last_frame = 0.0f, delta_time;
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
@@ -174,24 +148,19 @@ int main(void)
 	shadowMappingShader.SetUniform1i("diffuseTexture", 0);
 	shadowMappingShader.SetUniform1i("shadowMap", 1);
 
-
 	glm::vec3 lightPos(-10.f, 25.f, 10.0f);
 
 	glEnable(GL_DEPTH_TEST);
-	//glDepthRange(1, 1);
-	//// Enables Cull Facing
 	glEnable(GL_CULL_FACE);
-	//// Keeps front faces
 	glCullFace(GL_FRONT);
-	//// Uses counter clock-wise standard
 	glFrontFace(GL_CCW);
+	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		renderer.Clear();
 
-		glDepthFunc(GL_LEQUAL);
 
 		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -200,11 +169,9 @@ int main(void)
 		processInput(window);
 
 		/* Render here */
-
+		glDepthFunc(GL_LEQUAL);
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		skyBox.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 		//Render depth of scene to texture (from light's perspective)
 		glm::mat4 lightProjection, lightView;
@@ -216,6 +183,8 @@ int main(void)
 
 		shadowMappingDepthShader.Bind();
 		shadowMappingDepthShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+		
+		skyBox.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -224,7 +193,8 @@ int main(void)
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 
-		RenderTrain(shadowMappingDepthShader, camera, renderer, train, window, lightPos);
+
+		//RenderTrain(shadowMappingDepthShader, camera, renderer, train, window, lightPos);
 
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -232,21 +202,20 @@ int main(void)
 		shadowMappingShader.Bind();
 		shadowMappingShader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
 		shadowMappingShader.SetUniformMat4f("view", camera.GetViewMatrix());
-
 		shadowMappingShader.SetUniform3f("viewPos", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 		shadowMappingShader.SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
 		shadowMappingShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
+		/* Render here */
+		terrain.Draw();
+
+		trainTexture.Bind();
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 
-		/* Render here */
-		
 		RenderTrain(shadowMappingShader, camera, renderer, train, window, lightPos);
 
 		glDisable(GL_CULL_FACE);
-		
-
 		glDepthFunc(GL_LESS);
 
 		/* Swap front and back buffers */
