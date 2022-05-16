@@ -32,12 +32,12 @@ Texture::Texture(const std::string& filePath)
 	this->width = 0;
 	this->height = 0;
 	this->BPP = 0;
-	
+
 	stbi_set_flip_vertically_on_load(1);
 	localBuffer = stbi_load(filePath.c_str(), &width, &height, &BPP, 4);
 
 	glGenTextures(1, &rendererID);
-	glBindTexture(GL_TEXTURE_2D,rendererID);
+	glBindTexture(GL_TEXTURE_2D, rendererID);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -53,9 +53,9 @@ Texture::Texture(const std::string& filePath)
 		stbi_image_free(localBuffer);
 }
 
-Texture::Texture(const Texture& texture)
+Texture::Texture(const Texture& texture): Texture(texture.filePath)
 {
-	this->filePath = texture.filePath;
+
 }
 
 Texture::~Texture()
