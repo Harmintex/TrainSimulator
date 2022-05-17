@@ -4,17 +4,17 @@
 #include <stb_image.h>
 #include <iostream>
 
-SkyBox::SkyBox() : skyBoxShader{ "Resources\\Shaders\\SkyBox.shader" }
+SkyBox::SkyBox() : skyBoxShader{ "Resources/Shaders/SkyBox.shader" }
 {
 	float vertices[] =
 	{
-		-1.0f, -1.0f,  1.0f,//        7--------6
-		 1.0f, -1.0f,  1.0f,//       /|       /|
-		 1.0f, -1.0f, -1.0f,//      4--------5 |
-		-1.0f, -1.0f, -1.0f,//      | |      | |
-		-1.0f,  1.0f,  1.0f,//      | 3------|-2
-		 1.0f,  1.0f,  1.0f,//      |/       |/
-		 1.0f,  1.0f, -1.0f,//      0--------1
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
 		-1.0f,  1.0f, -1.0f
 	};
 
@@ -42,12 +42,12 @@ SkyBox::SkyBox() : skyBoxShader{ "Resources\\Shaders\\SkyBox.shader" }
 
 	facePaths =
 	{
-		"Resources\\Textures\\bluecloud_lf.jpg",
-		"Resources\\Textures\\bluecloud_rt.jpg",
-		"Resources\\Textures\\bluecloud_up.jpg",
-		"Resources\\Textures\\bluecloud_dn.jpg",
-		"Resources\\Textures\\bluecloud_ft.jpg",
-		"Resources\\Textures\\bluecloud_bk.jpg"
+		"Resources/Textures/bluecloud_lf.jpg",
+		"Resources/Textures/bluecloud_rt.jpg",
+		"Resources/Textures/bluecloud_up.jpg",
+		"Resources/Textures/bluecloud_dn.jpg",
+		"Resources/Textures/bluecloud_ft.jpg",
+		"Resources/Textures/bluecloud_bk.jpg"
 	};
 
 	glGenVertexArrays(1, &VAO);

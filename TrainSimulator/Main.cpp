@@ -20,7 +20,6 @@
 #include "Camera.h"
 #include "ObjectLoader.h"
 #include "Model.h"
-#include "Terrain.h"
 #include "SkyBox.h"
 
 // Global avriables
@@ -63,7 +62,25 @@ Model StationSignModel(const Texture& texture)
 	return Model(vertices, indices, texture);
 }
 
-void RenderTrain(Shader& shader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window)
+
+Model TerrainModel(Texture& texture)
+{
+	std::vector<float> vertices = {
+		 150.0f,  -0.5f, -270.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -0.5f, -270.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -0.5f, -240.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+		 150.0f,  -0.5f, -240.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
+	};
+
+	std::vector<unsigned int> indices = {
+		0,1,2,
+		2,3,0
+	};
+
+	return Model(vertices, indices, texture);
+}
+
+void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window)
 {
 	glm::mat4 model = glm::mat4(0.7f);
 
@@ -71,10 +88,10 @@ void RenderTrain(Shader& shader, Camera& camera, Renderer& renderer, Model& trai
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
 
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
+	objectShader.Bind();
+	objectShader.SetUniformMat4f("model", model);
 
-	train.Draw(camera, shader, renderer);
+	train.Draw(camera, objectShader, renderer);
 }
 
 void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& station, Model& stationSign, GLFWwindow* window, EStation stationName)
@@ -178,53 +195,35 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 	}
 }
 
-void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, GLFWwindow* window, glm::vec3& lightPos)
+void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& terrain, GLFWwindow* window, glm::vec3& lightPos)
 {
-	std::vector<float> vertices =
-	{
-		-20.0f, -0.0f,  1000.0f,//        7--------6
-		 20.0f, -0.0f,  1000.0f,//       /|       /|
-		 20.0f, -0.0f, -1000.0f,//      4--------5 |
-		-20.0f, -0.0f, -1000.0f,//      | |      | |
-		-20.0f,  0.0f,  1000.0f,//      | 3------|-2
-		 20.0f,  0.0f,  1000.0f,//      |/       |/
-		 20.0f,  0.0f, -1000.0f,//      0--------1
-		-20.0f,  0.0f, -1000.0f
-	};
-
-	std::vector<unsigned int> indices =
-	{
-		//Right
-		1, 2, 6,
-		6, 5, 1,
-		// Left
-		0, 4, 7,
-		7, 3, 0,
-		// Top
-		4, 5, 6,
-		6, 7, 4,
-		// Bottom
-		0, 3, 2,
-		2, 1, 0,
-		// Back
-		0, 1, 5,
-		5, 4, 0,
-		// Front
-		3, 7, 6,
-		6, 2, 3
-	};
-	Texture groundTexture("Resources/Textures/ground.jpg");
-	Model terrain(vertices, indices, groundTexture);
-
 	glm::mat4 model = glm::mat4(0.7f);
+	glm::vec3 position(0, 0, 0);
 
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(1.0f, 0.0f, 0.0f));
+	for (int i = 0; i < 35; i++)
+	{
+		if (camera.GetPosition().x < 150.0f - (i-5)*30.0f && camera.GetPosition().x > -120.0f - (i-5)*30.0f )
+		{
+			for (int j = 0; j < 12; j++)
+			{
+				position = { 0, 0, 30 };
+				model = glm::translate(model, position);
 
-	objectShader.Bind();
-	objectShader.SetUniformMat4f("model", model);
+				objectShader.Bind();
+				objectShader.SetUniformMat4f("model", model);
 
+				terrain.Draw(camera, objectShader, renderer);
+			}
+			position = { -30, 0, -360 };
+		}
+		else
+		{
+			position = { -30, 0, 0 };
+
+		}
+		model = glm::translate(model, position);
+	}
+}
 	terrain.Draw(camera, objectShader, renderer);
 }
 void RenderNatureObjects(Shader& shader, Camera& camera, Renderer& renderer, Model& firTree, Model& pineTree, Model& bush, Model& hazelnutTree, Model& stone, GLFWwindow* window)
@@ -331,6 +330,13 @@ int main(void)
 	Texture stoneTexture("Resources/Textures/stone.png");
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	Texture groundTexture("Resources/Textures/ground2.jpg");
+
+	Model terrain = TerrainModel(groundTexture);
+
+	SkyBox skybox_scene;
+	
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
 
 	Renderer renderer;
@@ -338,8 +344,9 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 
 	SkyBox skybox;
-	Terrain terrain;
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	std::vector<float> trainVertices;
 	std::vector<unsigned int> trainIndices;
@@ -494,6 +501,7 @@ int main(void)
 		RenderStation(shadowMapShader, camera, renderer, station, sinaiaSign, window, EStation::SINAIA);
 		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, window, EStation::PLOIESTI);
 		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, window, EStation::BUCURESTI);
+		RenderTerrain(shadowMapShader, camera, renderer, terrain, window, lightPos);
 		RenderNatureObjects(basicShader, camera, renderer, firTree, pineTree, bush, hazelnutTree, stone, window);
 
 		/* Swap front and back buffers */
