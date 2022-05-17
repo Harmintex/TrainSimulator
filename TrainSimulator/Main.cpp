@@ -62,14 +62,14 @@ Model StationSignModel(const Texture& texture)
 	return Model(vertices, indices, texture);
 }
 
-void RenderTrain(Shader& shader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window)
+
 Model TerrainModel(Texture& texture)
 {
 	std::vector<float> vertices = {
-		 150.0f,  -0.5f, -90.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-		 180.0f,  -0.5f, -90.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-		 180.0f,  -0.5f, -60.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
-		 150.0f,  -0.5f, -60.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
+		 150.0f,  -0.5f, -270.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -0.5f, -270.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -0.5f, -240.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+		 150.0f,  -0.5f, -240.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
 	};
 
 	std::vector<unsigned int> indices = {
@@ -80,7 +80,7 @@ Model TerrainModel(Texture& texture)
 	return Model(vertices, indices, texture);
 }
 
-void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window, glm::vec3& lightPos)
+void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window)
 {
 	glm::mat4 model = glm::mat4(0.7f);
 
@@ -88,10 +88,10 @@ void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
 
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
+	objectShader.Bind();
+	objectShader.SetUniformMat4f("model", model);
 
-	train.Draw(camera, shader, renderer);
+	train.Draw(camera, objectShader, renderer);
 }
 
 void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& station, Model& stationSign, GLFWwindow* window, EStation stationName)
@@ -200,11 +200,11 @@ void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Mod
 	glm::mat4 model = glm::mat4(0.7f);
 	glm::vec3 position(0, 0, 0);
 
-	for (int i = 0; i < 30; i++)
+	for (int i = 0; i < 35; i++)
 	{
 		if (camera.GetPosition().x < 150.0f - (i-5)*30.0f && camera.GetPosition().x > -120.0f - (i-5)*30.0f )
 		{
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < 12; j++)
 			{
 				position = { 0, 0, 30 };
 				model = glm::translate(model, position);
@@ -214,7 +214,7 @@ void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Mod
 
 				terrain.Draw(camera, objectShader, renderer);
 			}
-			position = { -30, 0, -120 };
+			position = { -30, 0, -360 };
 		}
 		else
 		{
@@ -264,6 +264,7 @@ int main(void)
 	Texture sinaiaSignTexture("Resources/Textures/sinaia_sign_texture.png");
 	Texture ploiestiSignTexture("Resources/Textures/ploiesti_sign_texture.png");
 	Texture bucurestiSignTexture("Resources/Textures/bucuresti_sign_texture.png");
+	Texture groundTexture("Resources/Textures/ground2.jpg");
 
 	Model terrain = TerrainModel(groundTexture);
 
@@ -277,7 +278,6 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 
 	SkyBox skybox;
-	Terrain terrain;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -400,9 +400,7 @@ int main(void)
 		RenderStation(shadowMapShader, camera, renderer, station, sinaiaSign, window, EStation::SINAIA);
 		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, window, EStation::PLOIESTI);
 		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, window, EStation::BUCURESTI);
-		RenderTrain(shadowMap_shader, camera, renderer, train, window, lightPos);
-		RenderTerrain(shadowMap_shader, camera, renderer, terrain, window, lightPos);
-		//terrain.Draw(groundTexture); //TODO: reduce frame issues
+		RenderTerrain(shadowMapShader, camera, renderer, terrain, window, lightPos);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
