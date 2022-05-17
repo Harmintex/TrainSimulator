@@ -20,7 +20,6 @@
 #include "Camera.h"
 #include "ObjectLoader.h"
 #include "Model.h"
-#include "Terrain.h"
 #include "SkyBox.h"
 
 // Global avriables
@@ -34,6 +33,23 @@ void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yOffset);
+
+Model TerrainModel(Texture& texture)
+{
+	std::vector<float> vertices = {
+		 150.0f,  -0.5f, -90.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -0.5f, -90.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -0.5f, -60.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+		 150.0f,  -0.5f, -60.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
+	};
+
+	std::vector<unsigned int> indices = {
+		0,1,2,
+		2,3,0
+	};
+
+	return Model(vertices, indices, texture);
+}
 
 void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window, glm::vec3& lightPos)
 {
@@ -49,54 +65,34 @@ void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model
 	train.Draw(camera, objectShader, renderer);
 }
 
-void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, GLFWwindow* window, glm::vec3& lightPos)
+void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& terrain, GLFWwindow* window, glm::vec3& lightPos)
 {
-	std::vector<float> vertices =
-	{
-		-20.0f, -0.0f,  1000.0f,//        7--------6
-		 20.0f, -0.0f,  1000.0f,//       /|       /|
-		 20.0f, -0.0f, -1000.0f,//      4--------5 |
-		-20.0f, -0.0f, -1000.0f,//      | |      | |
-		-20.0f,  0.0f,  1000.0f,//      | 3------|-2
-		 20.0f,  0.0f,  1000.0f,//      |/       |/
-		 20.0f,  0.0f, -1000.0f,//      0--------1
-		-20.0f,  0.0f, -1000.0f
-	};
-
-	std::vector<unsigned int> indices =
-	{
-		//Right
-		1, 2, 6,
-		6, 5, 1,
-		// Left
-		0, 4, 7,
-		7, 3, 0,
-		// Top
-		4, 5, 6,
-		6, 7, 4,
-		// Bottom
-		0, 3, 2,
-		2, 1, 0,
-		// Back
-		0, 1, 5,
-		5, 4, 0,
-		// Front
-		3, 7, 6,
-		6, 2, 3
-	};
-	Texture groundTexture("Resources/Textures/ground.jpg");
-	Model terrain(vertices, indices, groundTexture);
-
 	glm::mat4 model = glm::mat4(0.7f);
+	glm::vec3 position(0, 0, 0);
 
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(1.0f, 0.0f, 0.0f));
+	for (int i = 0; i < 30; i++)
+	{
+		if (camera.GetPosition().x < 150.0f - (i-5)*30.0f && camera.GetPosition().x > -120.0f - (i-5)*30.0f )
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				position = { 0, 0, 30 };
+				model = glm::translate(model, position);
 
-	objectShader.Bind();
-	objectShader.SetUniformMat4f("model", model);
+				objectShader.Bind();
+				objectShader.SetUniformMat4f("model", model);
 
-	terrain.Draw(camera, objectShader, renderer);
+				terrain.Draw(camera, objectShader, renderer);
+			}
+			position = { -30, 0, -120 };
+		}
+		else
+		{
+			position = { -30, 0, 0 };
+
+		}
+		model = glm::translate(model, position);
+	}
 }
 
 int main(void)
@@ -108,7 +104,6 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Train simulator", NULL, NULL);
 	if (!window)
 	{
@@ -116,7 +111,6 @@ int main(void)
 		glfwTerminate();
 		return -1;
 	}
-
 
 	glfwMakeContextCurrent(window);
 
@@ -137,7 +131,10 @@ int main(void)
 	Texture train_texture("Resources/Textures/train_texture.png");
 	Texture groundTexture("Resources/Textures/ground.jpg");
 
+	Model terrain = TerrainModel(groundTexture);
 
+	SkyBox skybox_scene;
+	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
 
@@ -145,8 +142,6 @@ int main(void)
 
 	glEnable(GL_DEPTH_TEST);
 
-	SkyBox skybox_scene;
-	Terrain terrain;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -256,7 +251,7 @@ int main(void)
 		glDisable(GL_CULL_FACE);
 
 		RenderTrain(shadowMap_shader, camera, renderer, train, window, lightPos);
-		//RenderTerrain(shadowMap_shader, camera, renderer, window, lightPos);
+		RenderTerrain(shadowMap_shader, camera, renderer, terrain, window, lightPos);
 		//terrain.Draw(groundTexture); //TODO: reduce frame issues
 
 		/* Swap front and back buffers */
