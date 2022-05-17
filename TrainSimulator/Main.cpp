@@ -176,10 +176,6 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 	default:
 		break;
 	}
-	objectShader.Bind();
-	objectShader.SetUniformMat4f("model", model);
-
-	train.Draw(camera, objectShader, renderer);
 }
 
 void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, GLFWwindow* window, glm::vec3& lightPos)
@@ -281,7 +277,7 @@ int main(void)
 
 	glEnable(GL_DEPTH_TEST);
 
-	SkyBox skybox_scene;
+	SkyBox skybox;
 	Terrain terrain;
 
 	glEnable(GL_BLEND);
