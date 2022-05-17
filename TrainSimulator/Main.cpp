@@ -227,6 +227,59 @@ void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, GLF
 
 	terrain.Draw(camera, objectShader, renderer);
 }
+void RenderNatureObjects(Shader& shader, Camera& camera, Renderer& renderer, Model& firTree, Model& pineTree, Model& bush, Model& hazelnutTree, Model& stone, GLFWwindow* window)
+{
+	glm::mat4 model = glm::mat4(0.7f);
+	model = glm::translate(model, glm::vec3(5.0f, 0.0f, -20.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
+
+	firTree.Draw(camera, shader, renderer);
+
+
+	model = glm::mat4(0.7f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -20.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
+
+	pineTree.Draw(camera, shader, renderer);
+
+	model = glm::mat4(0.7f);
+	model = glm::translate(model, glm::vec3(10.0f, 0.0f, -20.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.02f, 0.02f, 0.02f));
+
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
+
+	bush.Draw(camera, shader, renderer);
+
+	model = glm::mat4(0.7f);
+	model = glm::translate(model, glm::vec3(20.0f, 0.0f, -20.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
+
+	hazelnutTree.Draw(camera, shader, renderer);
+
+	model = glm::mat4(0.7f);
+	model = glm::translate(model, glm::vec3(25.0f, 0.0f, -20.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.03f, 0.03f, 0.03f));
+
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
+
+	stone.Draw(camera, shader, renderer);
+}
 
 int main(void)
 {
@@ -262,6 +315,7 @@ int main(void)
 
 	Shader shadowMapShader("Resources/Shaders/ShadowMapping.shader"); //shaders used for shadows
 	Shader shadowMapDepthShader("Resources/Shaders/ShadowMappingDepth.shader");
+	Shader basicShader("Resources/Shaders/Basic.shader");
 
 	Texture trainTexture("Resources/Textures/train_texture.png");
 	Texture stationTexture("Resources/Textures/station_texture.png");
@@ -269,8 +323,14 @@ int main(void)
 	Texture sinaiaSignTexture("Resources/Textures/sinaia_sign_texture.png");
 	Texture ploiestiSignTexture("Resources/Textures/ploiesti_sign_texture.png");
 	Texture bucurestiSignTexture("Resources/Textures/bucuresti_sign_texture.png");
+	Texture firTreeLeafsTexture ("Resources/Textures/firBranch.png");
+	//Texture firTreeBarkTexture("Resources/Textures/fir.jpg");
+	Texture pineTreeLeafsTexture("Resources/Textures/test4.png");
+	Texture bushLeafsTexture("Resources/Textures/test.png");
+	Texture hazleNutLeaftsTexture("Resources/Textures/test2.png");
+	Texture stoneTexture("Resources/Textures/stone.png");
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
 
 	Renderer renderer;
@@ -280,8 +340,6 @@ int main(void)
 	SkyBox skybox;
 	Terrain terrain;
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	std::vector<float> trainVertices;
 	std::vector<unsigned int> trainIndices;
@@ -291,12 +349,40 @@ int main(void)
 	std::vector<unsigned int> stationIndices;
 	ObjectLoader::LoadObject("Resources/Models/station.obj", stationVertices, stationIndices);
 
+	std::vector<float> firVertices;
+	std::vector<unsigned int> firIndices;
+	ObjectLoader::LoadObject("Resources/Models/fir.obj", firVertices, firIndices);
+
+	std::vector<float> pineVertices;
+	std::vector<unsigned int> pineIndices;
+	ObjectLoader::LoadObject("Resources/Models/pineTree.obj", pineVertices, pineIndices);
+
+	std::vector<float> bushVertices;
+	std::vector<unsigned int> bushIndices;
+	ObjectLoader::LoadObject("Resources/Models/bush.obj", bushVertices, bushIndices);
+
+	std::vector<float> hazelnutVertices;
+	std::vector<unsigned int> hazelnutIndices;
+	ObjectLoader::LoadObject("Resources/Models/hazelnut.obj", hazelnutVertices, hazelnutIndices);
+
+	std::vector<float> stoneVertices;
+	std::vector<unsigned int> stoneIndices;
+	ObjectLoader::LoadObject("Resources/Models/stone.obj", stoneVertices, stoneIndices);
+
+
+
+
 	Model train(trainVertices, trainIndices, trainTexture);
 	Model station(stationVertices, stationIndices, stationTexture);
 	Model brasovSign = StationSignModel(brasovSignTexture);
 	Model sinaiaSign = StationSignModel(sinaiaSignTexture);
 	Model ploiestiSign = StationSignModel(ploiestiSignTexture);
 	Model bucurestiSign = StationSignModel(bucurestiSignTexture);
+	Model firTree(firVertices, firIndices, firTreeLeafsTexture);
+	Model pineTree(pineVertices, pineIndices, pineTreeLeafsTexture);
+	Model bush(bushVertices, bushIndices, bushLeafsTexture);
+	Model hazelnutTree(hazelnutVertices, hazelnutIndices, hazleNutLeaftsTexture);
+	Model stone(stoneVertices, stoneIndices, stoneTexture);
 
 	float ambientIntensity = 0.8f;
 
@@ -374,7 +460,10 @@ int main(void)
 		glCullFace(GL_FRONT);
 
 		RenderTrain(shadowMapDepthShader, camera, renderer, train, window);
-		RenderTrain(shadowMapDepthShader, camera, renderer, station, window);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, brasovSign, window, EStation::BRASOV);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, sinaiaSign, window, EStation::SINAIA);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, ploiestiSign, window, EStation::PLOIESTI);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, bucurestiSign, window, EStation::BUCURESTI);
 
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -390,6 +479,10 @@ int main(void)
 		shadowMapShader.SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
 		shadowMapShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
+		basicShader.Bind();
+		basicShader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+		basicShader.SetUniformMat4f("view", camera.GetViewMatrix());
+
 		/* Render here */
 
 		glActiveTexture(GL_TEXTURE1);
@@ -401,6 +494,7 @@ int main(void)
 		RenderStation(shadowMapShader, camera, renderer, station, sinaiaSign, window, EStation::SINAIA);
 		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, window, EStation::PLOIESTI);
 		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, window, EStation::BUCURESTI);
+		RenderNatureObjects(basicShader, camera, renderer, firTree, pineTree, bush, hazelnutTree, stone, window);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
