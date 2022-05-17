@@ -107,7 +107,6 @@ unsigned int SkyBox::CreateCubemapTexture()
 
 void SkyBox::Draw(const glm::mat4& view, const glm::mat4& projection)
 {
-	
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
@@ -117,13 +116,11 @@ void SkyBox::Draw(const glm::mat4& view, const glm::mat4& projection)
 	skyBoxShader.SetUniformMat4f("view", glm::mat4(glm::mat3(view)));
 	skyBoxShader.SetUniformMat4f("projection", projection);
 
-	// skybox cube
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 
 	

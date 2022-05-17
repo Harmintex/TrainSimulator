@@ -20,6 +20,7 @@
 #include "Camera.h"
 #include "ObjectLoader.h"
 #include "Model.h"
+#include "Terrain.h"
 #include "SkyBox.h"
 
 // Global avriables
@@ -175,7 +176,60 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 	default:
 		break;
 	}
+	objectShader.Bind();
+	objectShader.SetUniformMat4f("model", model);
 
+	train.Draw(camera, objectShader, renderer);
+}
+
+void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, GLFWwindow* window, glm::vec3& lightPos)
+{
+	std::vector<float> vertices =
+	{
+		-20.0f, -0.0f,  1000.0f,//        7--------6
+		 20.0f, -0.0f,  1000.0f,//       /|       /|
+		 20.0f, -0.0f, -1000.0f,//      4--------5 |
+		-20.0f, -0.0f, -1000.0f,//      | |      | |
+		-20.0f,  0.0f,  1000.0f,//      | 3------|-2
+		 20.0f,  0.0f,  1000.0f,//      |/       |/
+		 20.0f,  0.0f, -1000.0f,//      0--------1
+		-20.0f,  0.0f, -1000.0f
+	};
+
+	std::vector<unsigned int> indices =
+	{
+		//Right
+		1, 2, 6,
+		6, 5, 1,
+		// Left
+		0, 4, 7,
+		7, 3, 0,
+		// Top
+		4, 5, 6,
+		6, 7, 4,
+		// Bottom
+		0, 3, 2,
+		2, 1, 0,
+		// Back
+		0, 1, 5,
+		5, 4, 0,
+		// Front
+		3, 7, 6,
+		6, 2, 3
+	};
+	Texture groundTexture("Resources/Textures/ground.jpg");
+	Model terrain(vertices, indices, groundTexture);
+
+	glm::mat4 model = glm::mat4(0.7f);
+
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(1.0f, 0.0f, 0.0f));
+
+	objectShader.Bind();
+	objectShader.SetUniformMat4f("model", model);
+
+	terrain.Draw(camera, objectShader, renderer);
 }
 
 int main(void)
@@ -227,8 +281,11 @@ int main(void)
 
 	glEnable(GL_DEPTH_TEST);
 
-	SkyBox skybox;
+	SkyBox skybox_scene;
+	Terrain terrain;
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	std::vector<float> trainVertices;
 	std::vector<unsigned int> trainIndices;
@@ -336,6 +393,8 @@ int main(void)
 		shadowMapShader.SetUniform3f("viewPos", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 		shadowMapShader.SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
 		shadowMapShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+
+		/* Render here */
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
