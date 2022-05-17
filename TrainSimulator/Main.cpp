@@ -26,7 +26,16 @@
 const int SCR_HEIGHT = 1080;
 const int SCR_WIDTH = 1920;
 float lastFrame = 0.0f, deltaTime;
-Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(5.0f, 8.0f, 30.0f));
+Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 0.0f, 0.0f));
+
+enum EStation
+{
+	NONE,
+	BRASOV,
+	SINAIA,
+	PLOIESTI,
+	BUCURESTI
+};
 
 // Functions used for proccesing input from user
 void processInput(GLFWwindow* window);
@@ -34,6 +43,26 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yOffset);
 
+Model StationSignModel(const Texture& texture)
+{
+	std::vector<float> vertices = {
+
+		/*Vertex coords	       Texture coords        Normals*/
+	 -2.0f,  -0.5f, 0.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,//0
+	  2.0f,  -0.5f, 0.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,//1
+	  2.0f,   0.5f, 0.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,//2
+	 -2.0f,   0.5f, 0.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,//3
+	};
+
+	std::vector<unsigned int> indices = {
+		0,1,2,
+		2,3,0
+	};
+
+	return Model(vertices, indices, texture);
+}
+
+void RenderTrain(Shader& shader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window)
 Model TerrainModel(Texture& texture)
 {
 	std::vector<float> vertices = {
@@ -55,14 +84,115 @@ void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model
 {
 	glm::mat4 model = glm::mat4(0.7f);
 
-	model = glm::translate(model, glm::vec3(0.0f, -0.09f, 5.1f));
+	model = glm::translate(model, glm::vec3(0.0f, -8.0f, -30.0f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
 
-	objectShader.Bind();
-	objectShader.SetUniformMat4f("model", model);
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
 
-	train.Draw(camera, objectShader, renderer);
+	train.Draw(camera, shader, renderer);
+}
+
+void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& station, Model& stationSign, GLFWwindow* window, EStation stationName)
+{
+
+	switch (stationName)
+	{
+	case NONE:
+		break;
+	case BRASOV:
+	{
+		if (std::abs(camera.GetPosition().x - 0.0f) < 50.0f)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -40.0f));
+			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model);
+			station.Draw(camera, shader, renderer);
+
+			glm::mat4 model2 = glm::mat4(1.0f);
+			model2 = glm::translate(model2, glm::vec3(0.5f, -1.26f, -36.6f));
+			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model2);
+			stationSign.Draw(camera, shader, renderer);
+		}
+
+		break;
+	}
+	case SINAIA:
+	{
+		if (std::abs(camera.GetPosition().x - (-240.0f)) < 50.0f)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(-240.0f, -5.0f, -40.0f));
+			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model);
+			station.Draw(camera, shader, renderer);
+
+
+			glm::mat4 model2 = glm::mat4(1.0f);
+			model2 = glm::translate(model2, glm::vec3(-239.5f, -1.26f, -36.6f));
+			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model2);
+			stationSign.Draw(camera, shader, renderer);
+		}
+
+		break;
+	}
+	case PLOIESTI:
+	{
+		if (std::abs(camera.GetPosition().x - (-480.0f)) < 50.0f)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(-480.0f, -5.0f, -40.0f));
+			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model);
+			station.Draw(camera, shader, renderer);
+
+			glm::mat4 model2 = glm::mat4(1.0f);
+			model2 = glm::translate(model2, glm::vec3(-479.5f, -1.26f, -36.6f));
+			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model2);
+			stationSign.Draw(camera, shader, renderer);
+		}
+
+		break;
+	}
+	case BUCURESTI:
+	{
+		if (std::abs(camera.GetPosition().x - (-720.0f)) < 50.0f)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(-720.0f, -5.0f, -40.0f));
+			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model);
+			station.Draw(camera, shader, renderer);
+
+			glm::mat4 model2 = glm::mat4(1.0f);
+			model2 = glm::translate(model2, glm::vec3(-719.5f, -1.26f, -36.6f));
+			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model2);
+			stationSign.Draw(camera, shader, renderer);
+		}
+
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& terrain, GLFWwindow* window, glm::vec3& lightPos)
@@ -125,11 +255,15 @@ int main(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	Shader shadowMap_shader("Resources/Shaders/ShadowMapping.shader"); //shaders used for shadows
-	Shader shadowMapDepth_shader("Resources/Shaders/ShadowMappingDepth.shader");
+	Shader shadowMapShader("Resources/Shaders/ShadowMapping.shader"); //shaders used for shadows
+	Shader shadowMapDepthShader("Resources/Shaders/ShadowMappingDepth.shader");
 
-	Texture train_texture("Resources/Textures/train_texture.png");
-	Texture groundTexture("Resources/Textures/ground.jpg");
+	Texture trainTexture("Resources/Textures/train_texture.png");
+	Texture stationTexture("Resources/Textures/station_texture.png");
+	Texture brasovSignTexture("Resources/Textures/brasov_sign_texture.png");
+	Texture sinaiaSignTexture("Resources/Textures/sinaia_sign_texture.png");
+	Texture ploiestiSignTexture("Resources/Textures/ploiesti_sign_texture.png");
+	Texture bucurestiSignTexture("Resources/Textures/bucuresti_sign_texture.png");
 
 	Model terrain = TerrainModel(groundTexture);
 
@@ -142,6 +276,8 @@ int main(void)
 
 	glEnable(GL_DEPTH_TEST);
 
+	SkyBox skybox;
+	Terrain terrain;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -150,7 +286,16 @@ int main(void)
 	std::vector<unsigned int> trainIndices;
 	ObjectLoader::LoadObject("Resources/Models/train.obj", trainVertices, trainIndices);
 
-	Model train(trainVertices, trainIndices, train_texture);
+	std::vector<float> stationVertices;
+	std::vector<unsigned int> stationIndices;
+	ObjectLoader::LoadObject("Resources/Models/station.obj", stationVertices, stationIndices);
+
+	Model train(trainVertices, trainIndices, trainTexture);
+	Model station(stationVertices, stationIndices, stationTexture);
+	Model brasovSign = StationSignModel(brasovSignTexture);
+	Model sinaiaSign = StationSignModel(sinaiaSignTexture);
+	Model ploiestiSign = StationSignModel(ploiestiSignTexture);
+	Model bucurestiSign = StationSignModel(bucurestiSignTexture);
 
 	float ambientIntensity = 0.8f;
 
@@ -176,9 +321,9 @@ int main(void)
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	shadowMap_shader.Bind();
-	shadowMap_shader.SetUniform1i("diffuseTexture", 0);
-	shadowMap_shader.SetUniform1i("shadowMap", 1);
+	shadowMapShader.Bind();
+	shadowMapShader.SetUniform1i("diffuseTexture", 0);
+	shadowMapShader.SetUniform1i("shadowMap", 1);
 
 	glm::vec3 lightPos(-8.0f, 30.f, 15.0f);
 
@@ -197,8 +342,8 @@ int main(void)
 		lastFrame = current_frame;
 
 
-		shadowMap_shader.Bind();
-		shadowMap_shader.SetUniform1f("u_AmbientIntensity", ambientIntensity);
+		shadowMapShader.Bind();
+		shadowMapShader.SetUniform1f("u_AmbientIntensity", ambientIntensity);
 
 		processInput(window);
 
@@ -215,10 +360,10 @@ int main(void)
 		lightSpaceMatrix = lightProjection * lightView;
 
 
-		shadowMapDepth_shader.Bind();
-		shadowMapDepth_shader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+		shadowMapDepthShader.Bind();
+		shadowMapDepthShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
-		skybox_scene.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		skybox.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -227,22 +372,22 @@ int main(void)
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 
-		RenderTrain(shadowMapDepth_shader, camera, renderer, train, window, lightPos);
-
+		RenderTrain(shadowMapDepthShader, camera, renderer, train, window);
+		RenderTrain(shadowMapDepthShader, camera, renderer, station, window);
 
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		//glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		/*glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 
-		shadowMap_shader.Bind();
-		shadowMap_shader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
-		shadowMap_shader.SetUniformMat4f("view", camera.GetViewMatrix());
+		shadowMapShader.Bind();
+		shadowMapShader.SetUniformMat4f("projection", camera.GetProjectionMatrix());
+		shadowMapShader.SetUniformMat4f("view", camera.GetViewMatrix());
 
-		shadowMap_shader.SetUniform3f("viewPos", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-		shadowMap_shader.SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
-		shadowMap_shader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+		shadowMapShader.SetUniform3f("viewPos", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+		shadowMapShader.SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
+		shadowMapShader.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
 		/* Render here */
 
@@ -250,6 +395,11 @@ int main(void)
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDisable(GL_CULL_FACE);
 
+		RenderTrain(shadowMapShader, camera, renderer, train, window);
+		RenderStation(shadowMapShader, camera, renderer, station, brasovSign, window, EStation::BRASOV);
+		RenderStation(shadowMapShader, camera, renderer, station, sinaiaSign, window, EStation::SINAIA);
+		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, window, EStation::PLOIESTI);
+		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, window, EStation::BUCURESTI);
 		RenderTrain(shadowMap_shader, camera, renderer, train, window, lightPos);
 		RenderTerrain(shadowMap_shader, camera, renderer, terrain, window, lightPos);
 		//terrain.Draw(groundTexture); //TODO: reduce frame issues
