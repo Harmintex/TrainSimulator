@@ -27,9 +27,10 @@
 const int SCR_HEIGHT = 1080;
 const int SCR_WIDTH = 1920;
 float lastFrame = 0.0f, deltaTime;
-float trainSpeed = 0.5f;
+float trainSpeed = 1.0f;
 glm::vec3 trainPosition = glm::vec3(0.0f, -5.7f, -21.6f);
 Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 0.0f, 0.0f));
+glm::vec3 lightPos(-8.0f, 30.f, 15.0f);
 
 enum EStation
 {
@@ -183,13 +184,17 @@ Model TerrainModel(Texture& texture)
 
 std::pair<float, float> GenerateRandomXAndZ() 
 {
-	int minx = camera.GetPosition().x - 850.0f;
-	int minz = camera.GetPosition().z - 200.0f;
-	int maxx = camera.GetPosition().x + 170.0f;
-	int maxz = camera.GetPosition().z + 100.0f;
-	int x = minx + (rand() % static_cast<int>(maxx - minx + 1));
+	float minx = camera.GetPosition().x - 850.0f;
+	float minz = camera.GetPosition().z - 200.0f;
+	float maxx = camera.GetPosition().x + 170.0f;
+	float maxz = camera.GetPosition().z + 100.0f;
+	float x = minx + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxx - minx)));
 	float z = minz + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxz - minz)));
-	while (z < -10.5f && z > -58.5f)
+	while (((x > -23.0f && x < 23.0f) || (x > -263.0f && x < -217.0f) || (x > -503.0f && x < -457.0f) || (x > -743.0f && x < -697.0f)) && z < -10.5f && z > -58.5f) {
+		x = minx + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxx - minx)));
+		z = minz + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxz - minz)));
+	}
+	while (z < -10.5f && z > -30.5f)
 	{
 		z = minz + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxz - minz)));
 	}
@@ -206,7 +211,7 @@ TypeOfNatureObject GenerateRandomNatureObject()
 std::vector<std::pair<std::pair<float, float>, TypeOfNatureObject>> GenerateObjectsWithRandomPositions()
 {
 	std::vector<std::pair<std::pair<float, float>, TypeOfNatureObject>> objectsWithRandomPositons;
-	for (int i = 0; i < 6000; i++) {
+	for (int i = 0; i < 2500; i++) {
 		objectsWithRandomPositons.push_back(std::make_pair(GenerateRandomXAndZ(), GenerateRandomNatureObject()));
 	}
 	return objectsWithRandomPositons;
@@ -235,7 +240,7 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 		break;
 	case BRASOV:
 	{
-		if (std::abs(camera.GetPosition().x - 0.0f) < 100.0f)
+		if (std::abs(camera.GetPosition().x - 0.0f) < 130.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -40.0f));
@@ -264,7 +269,7 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 	}
 	case SINAIA:
 	{
-		if (std::abs(camera.GetPosition().x - (-240.0f)) < 100.0f)
+		if (std::abs(camera.GetPosition().x - (-240.0f)) < 130.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(-240.0f, -5.0f, -40.0f));
@@ -294,7 +299,7 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 	}
 	case PLOIESTI:
 	{
-		if (std::abs(camera.GetPosition().x - (-480.0f)) < 100.0f)
+		if (std::abs(camera.GetPosition().x - (-480.0f)) < 130.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(-480.0f, -5.0f, -40.0f));
@@ -323,7 +328,7 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 	}
 	case BUCURESTI:
 	{
-		if (std::abs(camera.GetPosition().x - (-720.0f)) < 100.0f)
+		if (std::abs(camera.GetPosition().x - (-720.0f)) < 130.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(-720.0f, -5.0f, -40.0f));
@@ -364,7 +369,7 @@ void RenderRailway(Shader& shader, Camera& camera, Renderer& renderer, Model& ra
 
 	for (int i = 0; i < 37; i++)
 	{
-		if (camera.GetPosition().x < 0.0f - (i - 5) * 30.0f && camera.GetPosition().x > -280.0f - (i - 5) * 30.0f)
+		if (camera.GetPosition().x < 30.0f - (i - 5) * 30.0f && camera.GetPosition().x > -280.0f - (i - 5) * 30.0f)
 		{
 				shader.Bind();
 				shader.SetUniformMat4f("model", model);
@@ -385,7 +390,7 @@ void RenderTerrain(Shader& shader, Camera& camera, Renderer& renderer, Model& te
 
 	for (int i = 0; i < 35; i++)
 	{
-		if (camera.GetPosition().x < 130.0f - (i - 5) * 30.0f && camera.GetPosition().x > -120.0f - (i - 5) * 30.0f)
+		if (camera.GetPosition().x < 200.0f - (i - 5) * 30.0f && camera.GetPosition().x > -120.0f - (i - 5) * 30.0f)
 		{
 			for (int j = 0; j < 12; j++)
 			{
@@ -622,8 +627,6 @@ int main(void)
 	shadowMapShader.SetUniform1i("diffuseTexture", 0);
 	shadowMapShader.SetUniform1i("shadowMap", 1);
 
-	glm::vec3 lightPos(-8.0f, 30.f, 15.0f);
-
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
@@ -701,12 +704,12 @@ int main(void)
 		glDisable(GL_CULL_FACE);
 
 		RenderTrain(shadowMapShader, camera, renderer, train, window);
+		RenderTerrain(shadowMapShader, camera, renderer, terrain, window);
 		RenderStation(shadowMapShader, camera, renderer, station, brasovSign, stationPlatform, window, EStation::BRASOV);
 		RenderStation(shadowMapShader, camera, renderer, station, sinaiaSign, stationPlatform, window, EStation::SINAIA);
 		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, stationPlatform, window, EStation::PLOIESTI);
 		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, stationPlatform, window, EStation::BUCURESTI);
-		RenderRailway(shadowMapShader, camera, renderer, railway, window);
-		RenderTerrain(shadowMapShader, camera, renderer, terrain, window);
+		RenderRailway(shadowMapShader, camera, renderer, railway, window);	
 		RenderNatureObjects(basicShader, camera, renderer, firTree, pineTree, bush, hazelnutTree, stone, objectsWithRandomPositons, window);
 
 		/* Swap front and back buffers */
@@ -746,6 +749,7 @@ void processInput(GLFWwindow* window)
 	{
 		camera.ChangeXPosition(LEFT, (float)trainSpeed);
 		trainPosition.x -= (float)trainSpeed;
+		lightPos.x = camera.GetPosition().x + 100.0f;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
