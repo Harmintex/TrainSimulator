@@ -41,6 +41,8 @@ public:
 	void MouseControl(float xPos, float yPos);
 	void ProcessMouseScroll(float yOffset);
 
+	void ChangeXPosition(ECameraMovementType direction, float value);
+
 private:
 	void ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
 	void UpdateCameraVectors();

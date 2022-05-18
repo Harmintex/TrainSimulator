@@ -26,6 +26,8 @@
 const int SCR_HEIGHT = 1080;
 const int SCR_WIDTH = 1920;
 float lastFrame = 0.0f, deltaTime;
+float trainSpeed = 0.5f;
+glm::vec3 trainPosition = glm::vec3(0.0f, -5.7f, -21.6f);
 Camera camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0f, 0.0f, 0.0f));
 
 enum EStation
@@ -138,16 +140,28 @@ Model RailwayModel(const Texture& texture)
 	std::vector<float> vertices = {
 
 		/*Vertex coords	       Texture coords        Normals*/
-	 -100.0f,  -5.5f, 0.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-	  100.0f,  -5.5f, 0.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-	  100.0f,   5.5f, 0.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
-	 -100.0f,   5.5f, 0.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,
+	  0.0f,   -5.75f,  0.0f,	    0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  30.0f,  -5.75f,  0.0f,	    1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  30.0f,  -5.75f, -5.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+	  0.0f,   -5.75f, -5.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,
 	};
 
 	std::vector<unsigned int> indices = {
 		0,1,2,
 		2,3,0
 	};
+
+	//std::vector<float> vertices = {
+	// 80.0f,  -5.5f,  0.0f,		    0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	// 80.0f,  -5.5f,  0.0f,		    1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	// 80.0f,  -5.5f,  0.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+	// 80.0f,  -5.5f,  0.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
+	//};
+
+	//std::vector<unsigned int> indices = {
+	//	0,1,2,
+	//	2,3,0
+	//};
 
 	return Model(vertices, indices, texture);
 }
@@ -173,7 +187,7 @@ void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model
 {
 	glm::mat4 model = glm::mat4(0.7f);
 
-	model = glm::translate(model, glm::vec3(0.0f, -5.7f, -21.6f));
+	model = glm::translate(model, trainPosition);
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(1.0f, 0.5f, 0.5f));
 
@@ -315,13 +329,44 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 void RenderRailway(Shader& shader, Camera& camera, Renderer& renderer, Model& railway, GLFWwindow* window)
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	glm::vec3 position(0.0f, -5.6f, -21.8f);
-	model = glm::translate(model, position);
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//glm::vec3 position(80.0f, -5.6f, -21.8f);
+	//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	glm::vec3 position(0.0f, 0.0f, 0.0f);
 	model = glm::scale(model, glm::vec3(0.7f, 0.7f, 1.5f));
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
-	railway.Draw(camera, shader, renderer);
+
+	for (int i = 0; i < 50; i++)
+	{
+		if (camera.GetPosition().x < 160.0f - (i - 10) * 30.0f && camera.GetPosition().x > -80.0f - (i - 10) * 30.0f)
+		{
+				//position = { 30.0f, 0.0f, 0.0f };
+				//model = glm::translate(model, position);
+
+				shader.Bind();
+				shader.SetUniformMat4f("model", model);
+
+				railway.Draw(camera,shader, renderer);
+
+		}
+		position = { -30.0f, 0.0f, 0.0f };
+		model = glm::translate(model, position);
+	}
+	railway.Draw(camera,shader, renderer);
+	//for (int i = 0; i < 50; i++)
+	//{
+	//	if (camera.GetPosition().x < 200.0f - (i) * 30.0f && camera.GetPosition().x > -200.0f - (i) * 30.0f)
+	//	{
+	//		model = glm::translate(model, position);
+	//		shader.Bind();
+	//		shader.SetUniformMat4f("model", model);
+	//		railway.Draw(camera, shader, renderer);
+
+	//		//position = { -30.0f, -0.0f, -0.0f };
+	//	}
+	//	position = { -30.0f, -0.0f, -0.0f };
+	//}
+
+
 
 }
 
@@ -329,6 +374,7 @@ void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Mod
 {
 	glm::mat4 model = glm::mat4(0.7f);
 	glm::vec3 position(0.0f, 0.0f, 0.0f);
+
 
 	for (int i = 0; i < 35; i++)
 	{
@@ -669,6 +715,18 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		camera.ProcessKeyboard(DOWN, (float)deltaTime);
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		camera.ChangeXPosition(LEFT, (float)trainSpeed);
+		trainPosition.x -= (float)trainSpeed;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		camera.ChangeXPosition(RIGHT, (float)trainSpeed);
+		trainPosition.x += (float)trainSpeed;
+	}
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
 		int width, height;

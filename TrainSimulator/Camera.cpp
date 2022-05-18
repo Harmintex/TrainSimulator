@@ -128,6 +128,25 @@ void Camera::ProcessMouseScroll(float yOffset)
 		FoVy = 90.0f;
 }
 
+void Camera::ChangeXPosition(ECameraMovementType direction, float value)
+{
+	switch (direction)
+	{
+	case LEFT:
+	{
+		position.x -= (float)value;
+		break;
+	}
+	case RIGHT:
+	{
+		position.x += (float)value;
+		break;
+	}
+	default:
+		break;
+	}
+}
+
 void Camera::ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch)
 {
 	yaw += xOffset;
