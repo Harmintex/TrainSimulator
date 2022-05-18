@@ -5,6 +5,7 @@
 #include<glfw3.h>
 #include<GL/glut.h>
 #include<glm.hpp>
+#include <time.h> 
 
 #pragma comment (lib, "glfw3dll.lib")
 #pragma comment (lib, "glew32.lib")
@@ -37,6 +38,15 @@ enum EStation
 	SINAIA,
 	PLOIESTI,
 	BUCURESTI
+};
+
+enum TypeOfNatureObject {
+	FIRTREE,
+	PINETREE,
+	BUSH,
+	HAZELNUTTREE,
+	STONE,
+	Count
 };
 
 // Functions used for proccesing input from user
@@ -169,6 +179,37 @@ Model TerrainModel(Texture& texture)
 	};
 
 	return Model(vertices, indices, texture);
+}
+
+std::pair<float, float> GenerateRandomXAndZ() 
+{
+	int minx = camera.GetPosition().x - 850.0f;
+	int minz = camera.GetPosition().z - 200.0f;
+	int maxx = camera.GetPosition().x + 170.0f;
+	int maxz = camera.GetPosition().z + 100.0f;
+	int x = minx + (rand() % static_cast<int>(maxx - minx + 1));
+	float z = minz + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxz - minz)));
+	while (z < -10.5f && z > -58.5f)
+	{
+		z = minz + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxz - minz)));
+	}
+
+	return std::make_pair(x, z);
+}
+
+TypeOfNatureObject GenerateRandomNatureObject() 
+{
+	int corespondingNumber = rand() % static_cast<int>(TypeOfNatureObject::Count);
+	return static_cast<TypeOfNatureObject>(corespondingNumber);
+}
+
+std::vector<std::pair<std::pair<float, float>, TypeOfNatureObject>> GenerateObjectsWithRandomPositions()
+{
+	std::vector<std::pair<std::pair<float, float>, TypeOfNatureObject>> objectsWithRandomPositons;
+	for (int i = 0; i < 6000; i++) {
+		objectsWithRandomPositons.push_back(std::make_pair(GenerateRandomXAndZ(), GenerateRandomNatureObject()));
+	}
+	return objectsWithRandomPositons;
 }
 
 void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& train, GLFWwindow* window)
@@ -336,7 +377,7 @@ void RenderRailway(Shader& shader, Camera& camera, Renderer& renderer, Model& ra
 	railway.Draw(camera,shader, renderer);
 }
 
-void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& terrain, GLFWwindow* window, glm::vec3& lightPos)
+void RenderTerrain(Shader& shader, Camera& camera, Renderer& renderer, Model& terrain, GLFWwindow* window)
 {
 	glm::mat4 model = glm::mat4(0.7f);
 	glm::vec3 position(0.0f, 0.0f, 0.0f);
@@ -351,10 +392,10 @@ void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Mod
 				position = { 0.0f, 0.0f, 30.0f };
 				model = glm::translate(model, position);
 
-				objectShader.Bind();
-				objectShader.SetUniformMat4f("model", model);
+				shader.Bind();
+				shader.SetUniformMat4f("model", model);
 
-				terrain.Draw(camera, objectShader, renderer);
+				terrain.Draw(camera, shader, renderer);
 			}
 			position = { -30.0f, 0.0f, -360.0f };
 		}
@@ -365,65 +406,83 @@ void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Mod
 		}
 		model = glm::translate(model, position);
 	}
-	terrain.Draw(camera, objectShader, renderer);
+	terrain.Draw(camera, shader, renderer);
 }
 
-void RenderNatureObjects(Shader& shader, Camera& camera, Renderer& renderer, Model& firTree, Model& pineTree, Model& bush, Model& hazelnutTree, Model& stone, GLFWwindow* window)
+void RenderNatureObjects(Shader& shader, Camera& camera, Renderer& renderer, Model& firTree, Model& pineTree, Model& bush, Model& hazelnutTree, Model& stone, 
+	std::vector<std::pair<std::pair<float, float>, TypeOfNatureObject>> objectsWithRandomPositons, GLFWwindow* window)
 {
-	glm::mat4 model = glm::mat4(0.7f);
-	model = glm::translate(model, glm::vec3(5.0f, 0.0f, -20.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+	for (auto& pair : objectsWithRandomPositons) {
+		if (camera.GetPosition().x - 120.0f < pair.first.first && camera.GetPosition().x + 120.0f > pair.first.first)
+		{
+			glm::mat4 model = glm::mat4(0.7f);
+			if (pair.second == TypeOfNatureObject::FIRTREE) {
+				//firtree
+				model = glm::translate(model, glm::vec3(pair.first.first, -5.45f, pair.first.second));
+				model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
 
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
+				shader.Bind();
+				shader.SetUniformMat4f("model", model);
 
-	firTree.Draw(camera, shader, renderer);
+				firTree.Draw(camera, shader, renderer);
+			}
+			else if (pair.second == TypeOfNatureObject::PINETREE) {
+				//pinetree
+				model = glm::mat4(0.7f);
+				model = glm::translate(model, glm::vec3(pair.first.first, -5.45f, pair.first.second));
+				model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
 
+				shader.Bind();
+				shader.SetUniformMat4f("model", model);
 
-	model = glm::mat4(0.7f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -20.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+				pineTree.Draw(camera, shader, renderer);
+			}
+			else if (pair.second == TypeOfNatureObject::BUSH) {
+				//bush
+				model = glm::mat4(0.7f);
+				model = glm::translate(model, glm::vec3(pair.first.first, -5.45f, pair.first.second));
+				model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::scale(model, glm::vec3(0.02f, 0.02f, 0.02f));
 
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
+				shader.Bind();
+				shader.SetUniformMat4f("model", model);
 
-	pineTree.Draw(camera, shader, renderer);
+				bush.Draw(camera, shader, renderer);
+			} 
+			else if (pair.second == TypeOfNatureObject::HAZELNUTTREE) {
+				//hazelnut
+				model = glm::mat4(0.7f);
+				model = glm::translate(model, glm::vec3(pair.first.first, -5.45f, pair.first.second));
+				model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 
-	model = glm::mat4(0.7f);
-	model = glm::translate(model, glm::vec3(10.0f, 0.0f, -20.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.02f, 0.02f, 0.02f));
+				shader.Bind();
+				shader.SetUniformMat4f("model", model);
 
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
+				hazelnutTree.Draw(camera, shader, renderer);
+			}
+			else if (pair.second == TypeOfNatureObject::STONE) {
+				//stone
+				model = glm::mat4(0.7f);
+				model = glm::translate(model, glm::vec3(pair.first.first, -6.45f, pair.first.second));
+				model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::scale(model, glm::vec3(0.03f, 0.03f, 0.03f));
 
-	bush.Draw(camera, shader, renderer);
+				shader.Bind();
+				shader.SetUniformMat4f("model", model);
 
-	model = glm::mat4(0.7f);
-	model = glm::translate(model, glm::vec3(20.0f, 0.0f, -20.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
-
-	hazelnutTree.Draw(camera, shader, renderer);
-
-	model = glm::mat4(0.7f);
-	model = glm::translate(model, glm::vec3(25.0f, 0.0f, -20.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.03f, 0.03f, 0.03f));
-
-	shader.Bind();
-	shader.SetUniformMat4f("model", model);
-
-	stone.Draw(camera, shader, renderer);
+				stone.Draw(camera, shader, renderer);
+			}
+		}
+	}
 }
 
 int main(void)
 {
+	srand(time(NULL));
+
 	if (!glfwInit())
 		return -1;
 
@@ -472,15 +531,9 @@ int main(void)
 	Texture bushLeafsTexture("Resources/Textures/test.png");
 	Texture hazleNutLeaftsTexture("Resources/Textures/test2.png");
 	Texture stoneTexture("Resources/Textures/stone.png");
-
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	Texture groundTexture("Resources/Textures/ground2.jpg");
-
-	Model terrain = TerrainModel(groundTexture);
-
-	SkyBox skybox_scene;
-
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
 
 	Renderer renderer;
@@ -521,6 +574,7 @@ int main(void)
 	ObjectLoader::LoadObject("Resources/Models/stone.obj", stoneVertices, stoneIndices);
 
 
+	//Models
 	Model train(trainVertices, trainIndices, trainTexture);
 	Model station(stationVertices, stationIndices, stationTexture);
 	Model brasovSign = StationSignModel(brasovSignTexture);
@@ -534,6 +588,11 @@ int main(void)
 	Model bush(bushVertices, bushIndices, bushLeafsTexture);
 	Model hazelnutTree(hazelnutVertices, hazelnutIndices, hazleNutLeaftsTexture);
 	Model stone(stoneVertices, stoneIndices, stoneTexture);
+	Model terrain = TerrainModel(groundTexture);
+
+	//Generate random objects with random positions
+	auto objectsWithRandomPositons = GenerateObjectsWithRandomPositions();
+
 
 	float ambientIntensity = 0.8f;
 
@@ -615,6 +674,7 @@ int main(void)
 		RenderStation(shadowMapDepthShader, camera, renderer, station, sinaiaSign, stationPlatform, window, EStation::SINAIA);
 		RenderStation(shadowMapDepthShader, camera, renderer, station, ploiestiSign, stationPlatform, window, EStation::PLOIESTI);
 		RenderStation(shadowMapDepthShader, camera, renderer, station, bucurestiSign, stationPlatform, window, EStation::BUCURESTI);
+		RenderNatureObjects(shadowMapDepthShader, camera, renderer, firTree, pineTree, bush, hazelnutTree, stone, objectsWithRandomPositons, window);
 
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -646,8 +706,8 @@ int main(void)
 		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, stationPlatform, window, EStation::PLOIESTI);
 		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, stationPlatform, window, EStation::BUCURESTI);
 		RenderRailway(shadowMapShader, camera, renderer, railway, window);
-		RenderTerrain(shadowMapShader, camera, renderer, terrain, window, lightPos);
-		RenderNatureObjects(basicShader, camera, renderer, firTree, pineTree, bush, hazelnutTree, stone, window);
+		RenderTerrain(shadowMapShader, camera, renderer, terrain, window);
+		RenderNatureObjects(basicShader, camera, renderer, firTree, pineTree, bush, hazelnutTree, stone, objectsWithRandomPositons, window);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
