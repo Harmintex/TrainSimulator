@@ -140,28 +140,16 @@ Model RailwayModel(const Texture& texture)
 	std::vector<float> vertices = {
 
 		/*Vertex coords	       Texture coords        Normals*/
-	  0.0f,   -5.75f,  0.0f,	    0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-	  30.0f,  -5.75f,  0.0f,	    1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-	  30.0f,  -5.75f, -5.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
-	  0.0f,   -5.75f, -5.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,
+	  0.0f,   -5.6f,  -25.2f,	    0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  30.0f,  -5.6f,  -25.2f,	    1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  30.0f,  -5.6f,  -18.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+	  0.0f,   -5.6f,  -18.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,
 	};
 
 	std::vector<unsigned int> indices = {
 		0,1,2,
 		2,3,0
 	};
-
-	//std::vector<float> vertices = {
-	// 80.0f,  -5.5f,  0.0f,		    0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-	// 80.0f,  -5.5f,  0.0f,		    1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-	// 80.0f,  -5.5f,  0.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
-	// 80.0f,  -5.5f,  0.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
-	//};
-
-	//std::vector<unsigned int> indices = {
-	//	0,1,2,
-	//	2,3,0
-	//};
 
 	return Model(vertices, indices, texture);
 }
@@ -329,45 +317,23 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 void RenderRailway(Shader& shader, Camera& camera, Renderer& renderer, Model& railway, GLFWwindow* window)
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	//glm::vec3 position(80.0f, -5.6f, -21.8f);
-	//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	glm::vec3 position(0.0f, 0.0f, 0.0f);
-	model = glm::scale(model, glm::vec3(0.7f, 0.7f, 1.5f));
+	model = glm::translate(model, position);
 
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 37; i++)
 	{
-		if (camera.GetPosition().x < 160.0f - (i - 10) * 30.0f && camera.GetPosition().x > -80.0f - (i - 10) * 30.0f)
+		if (camera.GetPosition().x < 0.0f - (i - 5) * 30.0f && camera.GetPosition().x > -280.0f - (i - 5) * 30.0f)
 		{
-				//position = { 30.0f, 0.0f, 0.0f };
-				//model = glm::translate(model, position);
-
 				shader.Bind();
 				shader.SetUniformMat4f("model", model);
 
 				railway.Draw(camera,shader, renderer);
-
 		}
 		position = { -30.0f, 0.0f, 0.0f };
 		model = glm::translate(model, position);
 	}
 	railway.Draw(camera,shader, renderer);
-	//for (int i = 0; i < 50; i++)
-	//{
-	//	if (camera.GetPosition().x < 200.0f - (i) * 30.0f && camera.GetPosition().x > -200.0f - (i) * 30.0f)
-	//	{
-	//		model = glm::translate(model, position);
-	//		shader.Bind();
-	//		shader.SetUniformMat4f("model", model);
-	//		railway.Draw(camera, shader, renderer);
-
-	//		//position = { -30.0f, -0.0f, -0.0f };
-	//	}
-	//	position = { -30.0f, -0.0f, -0.0f };
-	//}
-
-
-
 }
 
 void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& terrain, GLFWwindow* window, glm::vec3& lightPos)
