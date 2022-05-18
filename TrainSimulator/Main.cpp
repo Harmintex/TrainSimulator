@@ -48,10 +48,10 @@ Model StationSignModel(const Texture& texture)
 	std::vector<float> vertices = {
 
 		/*Vertex coords	       Texture coords        Normals*/
-	 -2.0f,  -0.5f, 0.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,//0
-	  2.0f,  -0.5f, 0.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,//1
-	  2.0f,   0.5f, 0.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,//2
-	 -2.0f,   0.5f, 0.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,//3
+	 -2.0f,  -0.5f, 0.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  2.0f,  -0.5f, 0.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  2.0f,   0.5f, 0.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+	 -2.0f,   0.5f, 0.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,
 	};
 
 	std::vector<unsigned int> indices = {
@@ -62,14 +62,103 @@ Model StationSignModel(const Texture& texture)
 	return Model(vertices, indices, texture);
 }
 
+Model StationPlatformModel(const Texture& texture)
+{
+	std::vector<float> vertices = {
+		/*Vertex coords	            Texture coords        Normals*/
+
+		//front
+		-23.0f, -0.25f, 0.0f,       0.0f, 0.0f,         0.0f, 0.0f, 1.0f,
+		23.0f, -0.25f, 0.0f,        1.0f, 0.0f,         0.0f, 0.0f, 1.0f,
+		23.0f, 0.25f, 0.0f,         1.0f, 1.0f,         0.0f, 0.0f, 1.0f,
+		-23.0f, 0.25f, 0.0f,        0.0f, 1.0f,         0.0f, 0.0f, 1.0f,
+
+		//back
+		-23.0f, -0.25f, -45.0f,     1.0f, 0.0f,         0.0f, 0.0f, -1.0f,
+		-23.0f, 0.25f, -45.0f,      1.0f, 1.0f,         0.0f, 0.0f, -1.0f,
+		23.0f, 0.25f, -45.0f,       0.0f, 1.0f,         0.0f, 0.0f, -1.0f,
+		23.0f, -0.25f, -45.0f,      0.0f, 0.0f,         0.0f, 0.0f, -1.0f,
+
+		//left	   	  
+		-23.0f, -0.25f, -45.0,      0.0f, 0.0f,         -1.0f, 0.0f, 0.0f,
+		-23.0f, 0.25f, -45.0,       0.0f, 1.0f,         -1.0f, 0.0f, 0.0f,
+		-23.0f, 0.25f, 0.0,         1.0f, 1.0f,         -1.0f, 0.0f, 0.0f,
+		-23.0f, -0.25f, 0.0,        1.0f, 0.0f,         -1.0f, 0.0f, 0.0f,
+
+		//right
+		23.0, -0.25f, 0.0f,         0.0f, 0.0f,          1.0f, 0.0f, 0.0f,
+		23.0, -0.25f, -45.0f,       1.0f, 0.0f,          1.0f, 0.0f, 0.0f,
+		23.0, 0.25f, -45.0f,        1.0f, 1.0f,          1.0f, 0.0f, 0.0f,
+		23.0, 0.25f, 0.0f,          0.0f, 1.0f,          1.0f, 0.0f, 0.0f,
+
+		//top
+		-23.0f, 0.25f, 0.0f,        0.0f, 0.0f,          0.0f, 1.0f, 0.0f,
+		23.0f, 0.25f, 0.0f,         1.0f, 0.0f,          0.0f, 1.0f, 0.0f,
+		23.0f, 0.25f, -45.0f,       1.0f, 1.0f,          0.0f, 1.0f, 0.0f,
+		-23.0f, 0.25f, -45.0f,      0.0f, 1.0f,          0.0f, 1.0f, 0.0f,
+
+		//bottom
+		-23.0f, -0.25f, -45.0f,     0.0f, 0.0f,          0.0f, -1.0f, 0.0f,
+		23.0f, -0.25f, -45.0f,      1.0f, 0.0f,          0.0f, -1.0f, 0.0f,
+		23.0f, -0.25f, 0.0f,        1.0f, 1.0f,          0.0f, -1.0f, 0.0f,
+		-23.0f, -0.25f, 0.0f,       0.0f, 1.0f,          0.0f, -1.0f, 0.0f
+	};
+
+	std::vector<unsigned int> indices = {
+		//front
+		0,1,2,
+		2,3,0,
+
+		//back
+		5,4,7,
+		7,6,5,
+
+		//left
+		11,8,9,
+		9,10,11,
+
+		//right
+		12,13,14,
+		14,15,12,
+
+		//top
+		16,17,18,
+		18,19,16,
+
+		//bottom
+		23,22,21,
+		21,20,23
+	};
+
+	return Model(vertices, indices, texture);
+}
+
+Model RailwayModel(const Texture& texture)
+{
+	std::vector<float> vertices = {
+
+		/*Vertex coords	       Texture coords        Normals*/
+	 -100.0f,  -5.5f, 0.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  100.0f,  -5.5f, 0.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+	  100.0f,   5.5f, 0.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+	 -100.0f,   5.5f, 0.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f,
+	};
+
+	std::vector<unsigned int> indices = {
+		0,1,2,
+		2,3,0
+	};
+
+	return Model(vertices, indices, texture);
+}
 
 Model TerrainModel(Texture& texture)
 {
 	std::vector<float> vertices = {
-		 150.0f,  -0.5f, -270.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-		 180.0f,  -0.5f, -270.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
-		 180.0f,  -0.5f, -240.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
-		 150.0f,  -0.5f, -240.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
+		 150.0f,  -5.63f, -270.0f,		0.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -5.63f, -270.0f,		1.0f, 0.0f, 	0.0f,  0.0f,  1.0f,
+		 180.0f,  -5.63f, -240.0f,		1.0f, 1.0f, 	0.0f,  0.0f,  1.0f,
+		 150.0f,  -5.63f, -240.0f,		0.0f, 1.0f,  	0.0f,  0.0f,  1.0f
 	};
 
 	std::vector<unsigned int> indices = {
@@ -84,9 +173,9 @@ void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model
 {
 	glm::mat4 model = glm::mat4(0.7f);
 
-	model = glm::translate(model, glm::vec3(0.0f, -8.0f, -30.0f));
+	model = glm::translate(model, glm::vec3(0.0f, -5.7f, -21.6f));
 	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+	model = glm::scale(model, glm::vec3(1.0f, 0.5f, 0.5f));
 
 	objectShader.Bind();
 	objectShader.SetUniformMat4f("model", model);
@@ -94,7 +183,7 @@ void RenderTrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model
 	train.Draw(camera, objectShader, renderer);
 }
 
-void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& station, Model& stationSign, GLFWwindow* window, EStation stationName)
+void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& station, Model& stationSign, Model& stationPlatform, GLFWwindow* window, EStation stationName)
 {
 
 	switch (stationName)
@@ -103,89 +192,117 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 		break;
 	case BRASOV:
 	{
-		if (std::abs(camera.GetPosition().x - 0.0f) < 50.0f)
+		if (std::abs(camera.GetPosition().x - 0.0f) < 100.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -40.0f));
 			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			model = glm::scale(model, glm::vec3(1.0f, 0.7f, 1.5f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model);
 			station.Draw(camera, shader, renderer);
 
 			glm::mat4 model2 = glm::mat4(1.0f);
-			model2 = glm::translate(model2, glm::vec3(0.5f, -1.26f, -36.6f));
+			model2 = glm::translate(model2, glm::vec3(0.5f, -1.26f, -32.9f));
 			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model2);
 			stationSign.Draw(camera, shader, renderer);
+
+			glm::mat4 model3 = glm::mat4(0.7f);
+			model3 = glm::translate(model3, glm::vec3(0.8f, -5.45f, -24.5f));
+			model3 = glm::scale(model3, glm::vec3(0.6f, 0.6f, 0.6f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model3);
+			stationPlatform.Draw(camera, shader, renderer);
 		}
 
 		break;
 	}
 	case SINAIA:
 	{
-		if (std::abs(camera.GetPosition().x - (-240.0f)) < 50.0f)
+		if (std::abs(camera.GetPosition().x - (-240.0f)) < 100.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(-240.0f, -5.0f, -40.0f));
 			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			model = glm::scale(model, glm::vec3(1.0f, 0.7f, 1.5f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model);
 			station.Draw(camera, shader, renderer);
 
 
 			glm::mat4 model2 = glm::mat4(1.0f);
-			model2 = glm::translate(model2, glm::vec3(-239.5f, -1.26f, -36.6f));
+			model2 = glm::translate(model2, glm::vec3(-239.5f, -1.26f, -32.9f));
 			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model2);
 			stationSign.Draw(camera, shader, renderer);
+
+			glm::mat4 model3 = glm::mat4(0.7f);
+			model3 = glm::translate(model3, glm::vec3(-239.2f, -5.45f, -24.5f));
+			model3 = glm::scale(model3, glm::vec3(0.6f, 0.6f, 0.6f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model3);
+			stationPlatform.Draw(camera, shader, renderer);
 		}
 
 		break;
 	}
 	case PLOIESTI:
 	{
-		if (std::abs(camera.GetPosition().x - (-480.0f)) < 50.0f)
+		if (std::abs(camera.GetPosition().x - (-480.0f)) < 100.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(-480.0f, -5.0f, -40.0f));
 			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			model = glm::scale(model, glm::vec3(1.0f, 0.7f, 1.5f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model);
 			station.Draw(camera, shader, renderer);
 
 			glm::mat4 model2 = glm::mat4(1.0f);
-			model2 = glm::translate(model2, glm::vec3(-479.5f, -1.26f, -36.6f));
+			model2 = glm::translate(model2, glm::vec3(-479.5f, -1.26f, -32.9f));
 			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model2);
 			stationSign.Draw(camera, shader, renderer);
+
+			glm::mat4 model3 = glm::mat4(0.7f);
+			model3 = glm::translate(model3, glm::vec3(-479.2f, -5.45f, -24.5f));
+			model3 = glm::scale(model3, glm::vec3(0.6f, 0.6f, 0.6f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model3);
+			stationPlatform.Draw(camera, shader, renderer);
 		}
 
 		break;
 	}
 	case BUCURESTI:
 	{
-		if (std::abs(camera.GetPosition().x - (-720.0f)) < 50.0f)
+		if (std::abs(camera.GetPosition().x - (-720.0f)) < 100.0f)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(-720.0f, -5.0f, -40.0f));
 			model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+			model = glm::scale(model, glm::vec3(1.0f, 0.7f, 1.5f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model);
 			station.Draw(camera, shader, renderer);
 
 			glm::mat4 model2 = glm::mat4(1.0f);
-			model2 = glm::translate(model2, glm::vec3(-719.5f, -1.26f, -36.6f));
+			model2 = glm::translate(model2, glm::vec3(-719.5f, -1.26f, -32.9f));
 			model2 = glm::scale(model2, glm::vec3(0.7f, 0.7f, 0.7f));
 			shader.Bind();
 			shader.SetUniformMat4f("model", model2);
 			stationSign.Draw(camera, shader, renderer);
+
+			glm::mat4 model3 = glm::mat4(0.7f);
+			model3 = glm::translate(model3, glm::vec3(-719.2f, -5.45f, -24.5f));
+			model3 = glm::scale(model3, glm::vec3(0.6f, 0.6f, 0.6f));
+			shader.Bind();
+			shader.SetUniformMat4f("model", model3);
+			stationPlatform.Draw(camera, shader, renderer);
 		}
 
 		break;
@@ -195,18 +312,31 @@ void RenderStation(Shader& shader, Camera& camera, Renderer& renderer, Model& st
 	}
 }
 
+void RenderRailway(Shader& shader, Camera& camera, Renderer& renderer, Model& railway, GLFWwindow* window)
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::vec3 position(0.0f, -5.6f, -21.8f);
+	model = glm::translate(model, position);
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.7f, 0.7f, 1.5f));
+	shader.Bind();
+	shader.SetUniformMat4f("model", model);
+	railway.Draw(camera, shader, renderer);
+
+}
+
 void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Model& terrain, GLFWwindow* window, glm::vec3& lightPos)
 {
 	glm::mat4 model = glm::mat4(0.7f);
-	glm::vec3 position(0, 0, 0);
+	glm::vec3 position(0.0f, 0.0f, 0.0f);
 
 	for (int i = 0; i < 35; i++)
 	{
-		if (camera.GetPosition().x < 150.0f - (i-5)*30.0f && camera.GetPosition().x > -120.0f - (i-5)*30.0f )
+		if (camera.GetPosition().x < 130.0f - (i - 5) * 30.0f && camera.GetPosition().x > -120.0f - (i - 5) * 30.0f)
 		{
 			for (int j = 0; j < 12; j++)
 			{
-				position = { 0, 0, 30 };
+				position = { 0.0f, 0.0f, 30.0f };
 				model = glm::translate(model, position);
 
 				objectShader.Bind();
@@ -214,18 +344,18 @@ void RenderTerrain(Shader& objectShader, Camera& camera, Renderer& renderer, Mod
 
 				terrain.Draw(camera, objectShader, renderer);
 			}
-			position = { -30, 0, -360 };
+			position = { -30.0f, 0.0f, -360.0f };
 		}
 		else
 		{
-			position = { -30, 0, 0 };
+			position = { -30.0f, 0.0f, 0.0f };
 
 		}
 		model = glm::translate(model, position);
 	}
-}
 	terrain.Draw(camera, objectShader, renderer);
 }
+
 void RenderNatureObjects(Shader& shader, Camera& camera, Renderer& renderer, Model& firTree, Model& pineTree, Model& bush, Model& hazelnutTree, Model& stone, GLFWwindow* window)
 {
 	glm::mat4 model = glm::mat4(0.7f);
@@ -322,7 +452,9 @@ int main(void)
 	Texture sinaiaSignTexture("Resources/Textures/sinaia_sign_texture.png");
 	Texture ploiestiSignTexture("Resources/Textures/ploiesti_sign_texture.png");
 	Texture bucurestiSignTexture("Resources/Textures/bucuresti_sign_texture.png");
-	Texture firTreeLeafsTexture ("Resources/Textures/firBranch.png");
+	Texture stationPlatformTexture("Resources/Textures/platform_texture.png");
+	Texture railwayTexture("Resources/Textures/railway_texture.png");
+	Texture firTreeLeafsTexture("Resources/Textures/firBranch.png");
 	//Texture firTreeBarkTexture("Resources/Textures/fir.jpg");
 	Texture pineTreeLeafsTexture("Resources/Textures/test4.png");
 	Texture bushLeafsTexture("Resources/Textures/test.png");
@@ -335,7 +467,7 @@ int main(void)
 	Model terrain = TerrainModel(groundTexture);
 
 	SkyBox skybox_scene;
-	
+
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwSetCursorPos(window, (SCR_WIDTH / 2), (SCR_HEIGHT / 2));
 
@@ -377,14 +509,14 @@ int main(void)
 	ObjectLoader::LoadObject("Resources/Models/stone.obj", stoneVertices, stoneIndices);
 
 
-
-
 	Model train(trainVertices, trainIndices, trainTexture);
 	Model station(stationVertices, stationIndices, stationTexture);
 	Model brasovSign = StationSignModel(brasovSignTexture);
 	Model sinaiaSign = StationSignModel(sinaiaSignTexture);
 	Model ploiestiSign = StationSignModel(ploiestiSignTexture);
 	Model bucurestiSign = StationSignModel(bucurestiSignTexture);
+	Model stationPlatform = StationPlatformModel(stationPlatformTexture);
+	Model railway = RailwayModel(railwayTexture);
 	Model firTree(firVertices, firIndices, firTreeLeafsTexture);
 	Model pineTree(pineVertices, pineIndices, pineTreeLeafsTexture);
 	Model bush(bushVertices, bushIndices, bushLeafsTexture);
@@ -467,10 +599,10 @@ int main(void)
 		glCullFace(GL_FRONT);
 
 		RenderTrain(shadowMapDepthShader, camera, renderer, train, window);
-		RenderStation(shadowMapDepthShader, camera, renderer, station, brasovSign, window, EStation::BRASOV);
-		RenderStation(shadowMapDepthShader, camera, renderer, station, sinaiaSign, window, EStation::SINAIA);
-		RenderStation(shadowMapDepthShader, camera, renderer, station, ploiestiSign, window, EStation::PLOIESTI);
-		RenderStation(shadowMapDepthShader, camera, renderer, station, bucurestiSign, window, EStation::BUCURESTI);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, brasovSign, stationPlatform, window, EStation::BRASOV);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, sinaiaSign, stationPlatform, window, EStation::SINAIA);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, ploiestiSign, stationPlatform, window, EStation::PLOIESTI);
+		RenderStation(shadowMapDepthShader, camera, renderer, station, bucurestiSign, stationPlatform, window, EStation::BUCURESTI);
 
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -497,10 +629,11 @@ int main(void)
 		glDisable(GL_CULL_FACE);
 
 		RenderTrain(shadowMapShader, camera, renderer, train, window);
-		RenderStation(shadowMapShader, camera, renderer, station, brasovSign, window, EStation::BRASOV);
-		RenderStation(shadowMapShader, camera, renderer, station, sinaiaSign, window, EStation::SINAIA);
-		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, window, EStation::PLOIESTI);
-		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, window, EStation::BUCURESTI);
+		RenderStation(shadowMapShader, camera, renderer, station, brasovSign, stationPlatform, window, EStation::BRASOV);
+		RenderStation(shadowMapShader, camera, renderer, station, sinaiaSign, stationPlatform, window, EStation::SINAIA);
+		RenderStation(shadowMapShader, camera, renderer, station, ploiestiSign, stationPlatform, window, EStation::PLOIESTI);
+		RenderStation(shadowMapShader, camera, renderer, station, bucurestiSign, stationPlatform, window, EStation::BUCURESTI);
+		RenderRailway(shadowMapShader, camera, renderer, railway, window);
 		RenderTerrain(shadowMapShader, camera, renderer, terrain, window, lightPos);
 		RenderNatureObjects(basicShader, camera, renderer, firTree, pineTree, bush, hazelnutTree, stone, window);
 
